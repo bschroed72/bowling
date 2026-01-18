@@ -67,6 +67,10 @@
     background-color: yellow;
   }
 
+  .split {
+      background-color: pink;
+  }
+    
   input {
     text-align: center;
     border: none;
@@ -145,7 +149,7 @@
   <tr>
     <td class="scoreButton"><button class="scoreButton" onclick="addScore('X')">X</button></td>
     <td class="scoreButton"><button class="scoreButton" onclick="addScore('/')">/</button></td>
-    <td class="scoreButton"></td>
+    <td class="scoreButton"><button class="scoreButton" onclick="markSplit()">S</button></td>
     <td class="scoreButton"><button class="scoreButton" onclick="enableAllScoreButtons()">!!!</button></td>
     <td class="scoreButton"><button class="scoreButton" onclick="removeLastScore()"><-</button></td>
   </tr>
@@ -236,7 +240,7 @@ function clearScores() {
     }
 
     const rolls = document.querySelectorAll('.roll');
-    rolls.forEach (e => { e.textContent = ''});
+    rolls.forEach (e => { e.textContent = ''; e.classList.remove('split');});
 
     const scores = document.querySelectorAll('.frameTotal');
     scores.forEach (e => { e.textContent = ''});
@@ -299,6 +303,8 @@ function selectRow(rollRow) {
                     e.disabled = prevScore !== 'X';
                 } else if (e.textContent === '/') {
                     e.disabled = prevScore === 'X';;
+                } else if (e.textContent === 'S') {
+                    e.disabled = prevScore === 'X' || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
                 } else {
                     e.disabled = prevScore != 'X' && parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
                 }
@@ -312,12 +318,14 @@ function selectRow(rollRow) {
                     e.disabled = prevScore !== 'X' && prevScore !== '/';
                 } else if (e.textContent === '/') {
                     e.disabled = prevScore === 'X' || prevScore === '/';
+                } else if (e.textContent === 'S') {
+                    e.disabled = prevScore === 'X' || prevScore === "/" || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
                 } else {
                     e.disabled = prevScore != 'X' && parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
                 }
             });        
         } else if (selected.cellIndex % 2 === 0) {
-            scoreButtons.forEach (e => { e.disabled = e.textContent === '/'});
+            scoreButtons.forEach (e => { e.disabled = e.textContent === '/' || e.textContent === 'S'});
         } else {
             const prevScore = selected.previousElementSibling.textContent;
             scoreButtons.forEach (e => { 
@@ -327,6 +335,8 @@ function selectRow(rollRow) {
                     e.disabled = true;
                 } else if (e.textContent === '/') {
                     e.disabled = false;
+                } else if (e.textContent === 'S') {
+                    e.disabled = parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
                 } else {
                     e.disabled = parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
                 }
@@ -365,6 +375,10 @@ function addScore(score) {
 
 }
 
+function markSplit() {
+    selected.previousElementSibling.classList.toggle('split');
+}
+    
 function removeLastScore() {
     if (selected) {
         let cellToRemove = selected;
@@ -372,6 +386,7 @@ function removeLastScore() {
             cellToRemove = cellToRemove.previousElementSibling;
         }
         cellToRemove.textContent = '';
+        cellToRemove.classList.remove('split');
         calculateScore(selected.parentElement);
         selectRow(selected.parentElement);
     }

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bowling Scoresheet</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #000000;
+    }
+
+    button.functionButton {
+      margin: 10px auto;
+      padding: 8px 16px;
+      cursor: pointer;
+      background: blue;
+      color: white;
+    }
+
+    button.scoreButton {
+      cursor: pointer;
+      height: 4em;
+      width: 3em;
+      background: blue;
+      color: white;
+      font-weight: bold;
+    }
+
+    button.scoreButton:disabled {
+      opacity: 0.5; /* Makes the button look faded */
+      cursor: not-allowed; /* Changes the cursor to a "not allowed" symbol */
+      background-color: #cccccc; /* Optional: change to a grey background */
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 0 auto;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    table.scoreButtonTable {
+      background: transparent;
+      font-size: 20px;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 2px;
+      text-align: center;
+      min-width: 8px;
+    }
+
+    td.scoreButton {
+      border: none;
+      padding: 5px 8px;
+    }
+
+    th.frame {
+      background: #ddd; 
+    }
+
+    th.player {
+      min-width: 60px; 
+    }
+
+    td.selected {
+      background-color: yellow;
+    }
+
+    td.split {
+        background-color: pink;
+    }
+      
+    td.roll {
+      font-weight: bold;
+      height: 1em;
+    }
+
+    td.frameTotal {
+      font-weight: bold;
+      height: 1em;
+      border-bottom: 3px solid #333;
+
+    }
+
+    td.playerNote {
+      text-align: right;
+    }
+
+      input {
+      text-align: center;
+      border: none;
+    }
+
+    input:focus {
+      outline: none;
+      background: #eef;
+    }
+
+    input.note {
+      width: 19em;
+    }
+
+  </style>
+</head>
+
+<body>
+  <table id="functionButtons" class="scoreButtonTable">
+    <tr>
+      <td class="scoreButton"><button class="functionButton" onclick="addPlayer()">Add</button></td>
+      <td class="scoreButton"><button class="functionButton" onclick="removePlayer()">Remove</button></td>
+      <td class="scoreButton"><button class="functionButton" onclick="clearScores()">Clear</button></td>
+    </tr>
+  </table>
+
+  <table id="scoreTable">
+    <thead>
+      <tr><td colspan="21"><input class="note" /></td></tr>
+      <tr>
+        <th class="frame" colspan="2">1</th>
+        <th class="frame" colspan="2">2</th>
+        <th class="frame" colspan="2">3</th>
+        <th class="frame" colspan="2">4</th>
+        <th class="frame" colspan="2">5</th>
+        <th class="frame" colspan="2">6</th>
+        <th class="frame" colspan="2">7</th>
+        <th class="frame" colspan="2">8</th>
+        <th class="frame" colspan="2">9</th>
+        <th class="frame" colspan="3">10</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <table class="scoreButtonTable">
+    <tr>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('0')">0</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('1')">1</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('2')">2</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('3')">3</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('4')">4</button></td>
+    </tr>
+    <tr>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('5')">5</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('6')">6</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('7')">7</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('8')">8</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('9')">9</button></td>
+    </tr>
+    <tr>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('X')">X</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="addScore('/')">/</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="markSplit()">S</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="enableAllScoreButtons()">!!!</button></td>
+      <td class="scoreButton"><button class="scoreButton" onclick="removeLastScore()"><-</button></td>
+    </tr>
+  </table>
+
+
+  <script>
+  let selected = null;
+
+  function addPlayer() {
+    const tbody = document.querySelector("#scoreTable tbody");
+
+    // --- Roll row ---
+    const nameRow = document.createElement("tr");
+    const rollRow = document.createElement("tr");
+
+    const nameCell = document.createElement("td");
+    nameCell.colSpan = 8;
+    const nameInput = document.createElement("input");
+    nameInput.placeholder = "Player " + (document.querySelectorAll('.rollRow').length + 1);
+    nameInput.style.width = "80px";
+    nameCell.appendChild(nameInput);
+    nameRow.appendChild(nameCell);
+
+    const playerNoteCell = document.createElement("td");
+    playerNoteCell.colSpan = 13;
+    playerNoteCell.className = "playerNote"
+    playerNoteCell.textContent = "";
+    nameRow.appendChild(playerNoteCell);
+
+    for (let i = 0; i < 21; i++) {
+      const cell = document.createElement("td");
+      cell.className = "roll";
+      cell.textContent = "";
+      rollRow.appendChild(cell);
+    }
+
+    // --- Total row ---
+    const totalRow = document.createElement("tr");
+
+    for (let i = 0; i < 10; i++) {
+      const cell = document.createElement("td");
+      cell.colSpan = i === 9 ? 3 : 2;
+      cell.className = "frameTotal";
+      cell.textContent = "";
+      totalRow.appendChild(cell);
+    }
+
+    nameRow.className = "nameRow";
+    nameRow.addEventListener("click", () => selectRow(rollRow));
+    rollRow.className = "rollRow";
+    rollRow.addEventListener("click", () => selectRow(rollRow));
+    totalRow.className = "totalRow";
+    totalRow.addEventListener("click", () => selectRow(rollRow));
+
+    tbody.appendChild(nameRow);
+    tbody.appendChild(rollRow);
+    tbody.appendChild(totalRow);
+
+    selectRow(rollRow);
+  }
+
+  function removePlayer() {
+    if (!selected) {
+      alert ("Please select a player to remove");
+    }
+
+    const nameRow = selected.parentElement.previousElementSibling;
+    const nameCell = nameRow.cells[0];
+    const nameInput = nameCell.querySelector('input');
+    const playerName = nameInput.value !== '' ? nameInput.value : nameInput.placeholder;
+    if (!confirm("Are you sure you want to remove " + playerName)) {
+      return;
+    }
+    
+    nameRow.nextElementSibling.remove();
+    nameRow.nextElementSibling.remove();    
+    nameRow.remove();
+    
+    const firstMatchingRow = document.querySelector('.rollRow');
+    selectRow(firstMatchingRow);
+  }
+
+  function clearScores() {
+    if (!confirm("This will remove ALL scores from ALL bowlers - are you sure?")) {
+      return;
+    }
+
+    const rolls = document.querySelectorAll('.roll');
+    rolls.forEach (e => { e.textContent = ''; e.classList.remove('split');});
+
+    const scores = document.querySelectorAll('.frameTotal');
+    scores.forEach (e => { e.textContent = ''});
+
+    const playerNote = document.querySelectorAll('.playerNote');
+    playerNote.forEach (e => { e.textContent = ''});
+    
+    const firstMatchingRow = document.querySelector('.rollRow');
+    selectRow(firstMatchingRow);
+  }
+
+  function selectRow(rollRow) {
+    if (selected) {
+      selected.classList.remove('selected');
+      selected = null;
+    }
+
+    cells = rollRow.getElementsByTagName("td");
+
+    for(let scoreCell = 0; scoreCell < cells.length; scoreCell++)
+    {
+      if (!cells[scoreCell].textContent) {
+        if ((scoreCell == 0)
+          || (scoreCell <= 18 && cells[scoreCell-1].textContent !== 'X')
+          || (scoreCell == 19)
+          || (scoreCell == 20 && (cells[18].textContent === 'X' || cells[19].textContent === '/')))
+        {
+          cells[scoreCell].classList.add('selected');
+          selected = cells[scoreCell];
+          break;
+        }
+      }
+    }
+    
+    const scoreButtons = document.querySelectorAll('button.scoreButton');
+    if (!selected) {
+      selected = cells[cells.length - 1]
+      scoreButtons.forEach (e => { e.disabled = e.textContent.length === 1 });
+    } else {
+      if (selected.cellIndex == 19) {  //second ball of 10th frame
+        const prevScore = selected.previousElementSibling.textContent;
+        scoreButtons.forEach (e => { 
+          if (e.textContent.length > 1) {
+            e.disabled = false;
+          } else if (e.textContent === 'X') {
+            e.disabled = prevScore !== 'X';
+          } else if (e.textContent === '/') {
+            e.disabled = prevScore === 'X';;
+          } else if (e.textContent === 'S') {
+            e.disabled = prevScore === 'X' || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
+          } else {
+            e.disabled = prevScore !== 'X' && parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
+          }
+        });        
+      } else if (selected.cellIndex === 20) {  //third ball of 10th frame
+        const prevScore = selected.previousElementSibling.textContent;
+        scoreButtons.forEach (e => { 
+          if (e.textContent.length > 1) {
+            e.disabled = false;
+          } else if (e.textContent === 'X') {
+            e.disabled = prevScore !== 'X' && prevScore !== '/';
+          } else if (e.textContent === '/') {
+            e.disabled = prevScore === 'X' || prevScore === '/';
+          } else if (e.textContent === 'S') {
+            e.disabled = prevScore === 'X' || prevScore === "/" || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
+          } else {
+            e.disabled = prevScore !== 'X' && parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
+          }
+        });        
+      } else if (selected.cellIndex % 2 === 0) {  //first ball of all frames
+        scoreButtons.forEach (e => { e.disabled = e.textContent === '/' || e.textContent === 'S'});
+      } else {                                    //second ball of frames 2-9
+        const prevScore = selected.previousElementSibling.textContent;
+        scoreButtons.forEach (e => { 
+          if (e.textContent.length > 1) {
+            e.disabled = false;
+          } else if (e.textContent === 'X') {
+            e.disabled = true;
+          } else if (e.textContent === '/') {
+            e.disabled = false;
+          } else if (e.textContent === 'S') {
+            e.disabled = parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
+          } else {
+            e.disabled = parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
+          }
+        });
+      }
+    }
+  }
+
+  function enableAllScoreButtons() {
+    const scoreButtons = document.querySelectorAll('button.scoreButton');
+    scoreButtons.forEach (e => { e.disabled = false});
+  }
+      
+  function addScore(score) {
+    if (selected) {
+      selected.textContent = score;
+      calculateScore(selected.parentElement);
+
+      if (selected.cellIndex === 18) {
+        selectRow(selected.parentElement);
+      } else if (selected.cellIndex === 19 && (score === '/' || selected.previousElementSibling.textContent === 'X')) {
+        selectRow(selected.parentElement);
+      } else if (selected.cellIndex === 20 || score === 'X' || (selected.cellIndex % 2) === 1) {
+        let candidateRow = selected.parentElement.nextElementSibling;
+        while (candidateRow.className !== 'rollRow') {
+          candidateRow = candidateRow.nextElementSibling;
+          if (!candidateRow) {
+            candidateRow = document.querySelector(".rollRow");
+          }
+        }
+        selectRow(candidateRow);
+      } else {
+        selectRow(selected.parentElement);
+      }
+    }
+  }
+
+  function markSplit() {
+    selected.previousElementSibling.classList.toggle('split');
+  }
+      
+  function removeLastScore() {
+    if (selected) {
+      let cellToRemove = selected;
+      while (!cellToRemove.textContent) {
+        cellToRemove = cellToRemove.previousElementSibling;
+      }
+      cellToRemove.textContent = '';
+      cellToRemove.classList.remove('split');
+      calculateScore(selected.parentElement);
+      selectRow(selected.parentElement);
+    }
+
+  }
+
+  function calculateScore(rollRow) {
+    const nameRow = rollRow.previousElementSibling;
+    const totalRow = rollRow.nextElementSibling;
+    const rolls = [...rollRow.querySelectorAll('td')]
+      .map(i => i.textContent === "" ? null : i.textContent);
+
+    let score = 0;
+    let rollIndex = 0;
+    const frameCells = totalRow.querySelectorAll(".frameTotal");
+
+    frameCells.forEach(cell => cell.textContent = "");
+
+    for (let frame = 0; frame < 10; frame++) {
+      let showFrameScore = true;
+      if (!rolls[rollIndex] && (rollIndex == 0 || rolls[rollIndex-1] != 'X')) {
+        break;
+      }
+
+      if (rolls[rollIndex] === 'X') {
+        let firstExtra = null;
+        let secondExtra = null;
+        for (let i = rollIndex + 1; i < rolls.length; i++) {
+          if (rolls[i]) {
+            if (!firstExtra) {
+              firstExtra = rolls[i];
+            } else if (!secondExtra) {
+              secondExtra = rolls[i];
+              break;
+            }
+          }
+        }
+        score += 10; 
+        if (secondExtra === '/') {
+          score += 10;
+        } else {
+          showFrameScore = firstExtra && secondExtra;
+          if (firstExtra) {
+            score += firstExtra === 'X' ? 10 : parseInt(firstExtra, 10)
+          } 
+          if (secondExtra) {
+            score += secondExtra === 'X' ? 10 : parseInt(secondExtra, 10)
+          } 
+        }
+        rollIndex += 2;
+      } else {
+        const first = rolls[rollIndex];
+        const second = rolls[rollIndex + 1];
+
+        if (second && second === '/') {
+          let firstExtra = null;
+          for (let i = rollIndex + 2; i < rolls.length; i++) {
+            if (rolls[i]) {
+              firstExtra = rolls[i];
+              break;
+            }
+          }
+          score += 10; 
+          showFrameScore = firstExtra;
+          if (firstExtra) {
+            score += firstExtra === 'X' ? 10 : parseInt(firstExtra, 10)
+          }
+        } else if (second) {
+            score += parseInt(first, 10) + parseInt(second, 10);
+        } else {
+          showFrameScore = false;
+          score += parseInt(first, 10)
+        }
+        rollIndex += 2;
+      }
+
+      frameCells[frame].textContent = showFrameScore ? score : ""; 
+
+    }
+
+    const playerNoteElem = nameRow.querySelector(".playerNote");
+    playerNoteElem.textContent = "Min: " + score;
+
+  }
+
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  if(urlParams.has('bowlers'))
+  {
+    for (let bowlers = 0; bowlers < parseInt(urlParams.get('bowlers'), 10); bowlers++) {
+      addPlayer();
+    }
+    document.getElementById('functionButtons').style.display = "none";
+  } else {
+    addPlayer();
+  }
+
+  const firstMatchingRow = document.querySelector('.rollRow');
+  selectRow(firstMatchingRow);
+  
+</script>
+
+</body>
+</html>

@@ -115,25 +115,30 @@
       width: 19em;
     }
 
-.floating-container-left {
-  /* Positions the container relative to the viewport */
-  position: fixed;
-  /* Adjust these values to position the button where you want it */
-  top: 10px;
-  left: 10px;
-  /* Ensures the button is above other content */
-  z-index: 1000; 
-}
+    .floating-container-top-left {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1000; 
+    }
+
+    .floating-container-bottom-left {
+      position: fixed;
+      bottom: 0px;
+      left: 10px;
+      z-index: 900; 
+    }
   </style>
 </head>
 
 <body>
-<div class="floating-container-left">
-  <button class="menuButton" onclick="toggleFunctionButtons()">...</button>
-  <button class="functionButton" onclick="addPlayer()">Add Bowler</button>
-  <button class="functionButton" onclick="removePlayer()">Remove Bowler</button>
-  <button class="functionButton" onclick="clearScores()">Clear Scores</button>
-</div>
+<div>
+  <div class="floating-container-top-left">
+    <button class="menuButton" onclick="toggleFunctionButtons()">...</button>
+    <button class="functionButton" onclick="addPlayer()">Add Bowler</button>
+    <button class="functionButton" onclick="removePlayer()">Remove Bowler</button>
+    <button class="functionButton" onclick="clearScores()">Clear Scores</button>
+  </div>
 
   <table id="scoreTable">
     <thead>
@@ -154,29 +159,33 @@
     <tbody></tbody>
   </table>
 
-  <table class="scoreButtonTable">
-    <tr>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('0')">0</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('1')">1</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('2')">2</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('3')">3</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('4')">4</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('X')">X</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('/')">/</button></td>
-    </tr>
-    <tr>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('5')">5</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('6')">6</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('7')">7</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('8')">8</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="addScore('9')">9</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="markSplit()">S</button></td>
-      <td class="scoreButton"><button class="scoreButton" onclick="removeLastScore()"><-</button></td>
-    </tr>
-    <tr>
-    </tr>
-  </table>
-
+  <div class="floating-container-bottom-left">
+    <table class="scoreButtonTable">
+      <tr>
+        <td class="scoreButton"><button class="scoreButton" onclick="removeLastScore()"><-</button></td>
+      </tr>
+      <tr>
+        <td class="scoreButton"><button class="scoreButton" onclick="markSplit()">S</button></td>
+      </tr>
+      <tr>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('0')">0</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('1')">1</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('2')">2</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('3')">3</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('4')">4</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('/')">/</button></td>
+      </tr>
+      <tr>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('5')">5</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('6')">6</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('7')">7</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('8')">8</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('9')">9</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore('X')">X</button></td>
+      </tr>
+    </table>
+  </div>
+</div>
 
   <script>
   let selected = null;

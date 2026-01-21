@@ -11,14 +11,23 @@
       background: #000000;
     }
 
+    button.menuButton {
+      cursor: pointer;
+      height: 3em;
+      background: black;
+      color: white;
+      border: 1px solid white;
+      font-weight: bold;
+    }
+
     button.functionButton {
       cursor: pointer;
       height: 3em;
-      width: 3em;
       background: blue;
       color: white;
       font-weight: bold;
-border-radius: 50%;
+      margin: 5px;
+      display: none;
     }
 
     button.scoreButton {
@@ -38,14 +47,14 @@ border-radius: 50%;
 
     table {
       border-collapse: collapse;
-      margin: 0 auto;
+      margin: 0 62px;
       background: #fff;
       font-size: 13px;
     }
 
     table.scoreButtonTable {
       background: transparent;
-      font-size: 20px;
+      margin: 0;
     }
 
     th, td {
@@ -120,9 +129,10 @@ border-radius: 50%;
 
 <body>
 <div class="floating-container-left">
-  <button class="functionButton" onclick="addPlayer()">+</button><br />
-  <button class="functionButton" onclick="removePlayer()">-</button><br /><br />
-  <button class="functionButton" onclick="clearScores()">CLR</button>
+  <button class="menuButton" onclick="toggleFunctionButtons()">...</button>
+  <button class="functionButton" onclick="addPlayer()">Add Bowler</button>
+  <button class="functionButton" onclick="removePlayer()">Remove Bowler</button>
+  <button class="functionButton" onclick="clearScores()">Clear Scores</button>
 </div>
 
   <table id="scoreTable">
@@ -170,6 +180,11 @@ border-radius: 50%;
 
   <script>
   let selected = null;
+
+  function toggleFunctionButtons() {
+    const funcButtons = document.querySelectorAll('button.functionButton');
+    funcButtons.forEach (e => { e.style.display = e.style.display !== 'inline' ? 'inline' : 'none'});
+  }
 
   function addPlayer() {
     const tbody = document.querySelector("#scoreTable tbody");
@@ -247,6 +262,7 @@ border-radius: 50%;
 
   function clearScores() {
     if (!confirm("This will remove ALL scores from ALL bowlers - are you sure?")) {
+      toggleFunctionButtons();
       return;
     }
 
@@ -261,6 +277,8 @@ border-radius: 50%;
     
     const firstMatchingRow = document.querySelector('.rollRow');
     selectRow(firstMatchingRow);
+
+    toggleFunctionButtons();
   }
 
   function selectRow(rollRow) {

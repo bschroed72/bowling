@@ -12,11 +12,13 @@
     }
 
     button.functionButton {
-      margin: 10px auto;
-      padding: 8px 16px;
       cursor: pointer;
+      height: 3em;
+      width: 3em;
       background: blue;
       color: white;
+      font-weight: bold;
+border-radius: 50%;
     }
 
     button.scoreButton {
@@ -113,27 +115,14 @@
   /* Ensures the button is above other content */
   z-index: 1000; 
 }
-
-.floating-container-right {
-  /* Positions the container relative to the viewport */
-  position: fixed;
-  /* Adjust these values to position the button where you want it */
-  top: 10px;
-  right: 10px;
-  /* Ensures the button is above other content */
-  z-index: 1000; 
-}
   </style>
 </head>
 
 <body>
 <div class="floating-container-left">
-  <button class="scoreButton" onclick="addPlayer()">+</button><br />
-  <button class="scoreButton" onclick="removePlayer()">-</button>
-</div>
-
-<div class="floating-container-right">
-  <button class="scoreButton" onclick="clearScores()">CLR</button><br />
+  <button class="functionButton" onclick="addPlayer()">+</button><br />
+  <button class="functionButton" onclick="removePlayer()">-</button><br /><br />
+  <button class="functionButton" onclick="clearScores()">CLR</button>
 </div>
 
   <table id="scoreTable">

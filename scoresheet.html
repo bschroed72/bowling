@@ -104,7 +104,7 @@
       width: 19em;
     }
 
-.floating-container {
+.floating-container-left {
   /* Positions the container relative to the viewport */
   position: fixed;
   /* Adjust these values to position the button where you want it */
@@ -113,21 +113,28 @@
   /* Ensures the button is above other content */
   z-index: 1000; 
 }
+
+.floating-container-right {
+  /* Positions the container relative to the viewport */
+  position: fixed;
+  /* Adjust these values to position the button where you want it */
+  top: 10px;
+  right: 10px;
+  /* Ensures the button is above other content */
+  z-index: 1000; 
+}
   </style>
 </head>
 
 <body>
-<div class="floating-container">
-  <button class="scoreButton" onclick="clearScores()">CLR</button>
+<div class="floating-container-left">
+  <button class="scoreButton" onclick="addPlayer()">+</button><br />
+  <button class="scoreButton" onclick="removePlayer()">-</button>
 </div>
 
-  <table id="functionButtons" class="scoreButtonTable">
-    <tr>
-      <td class="scoreButton"><button class="functionButton" onclick="addPlayer()">Add</button></td>
-      <td class="scoreButton"><button class="functionButton" onclick="removePlayer()">Remove</button></td>
-      <td class="scoreButton"><button class="functionButton" onclick="clearScores()">Clear</button></td>
-    </tr>
-  </table>
+<div class="floating-container-right">
+  <button class="scoreButton" onclick="clearScores()">CLR</button><br />
+</div>
 
   <table id="scoreTable">
     <thead>
@@ -479,7 +486,6 @@
     for (let bowlers = 0; bowlers < parseInt(urlParams.get('bowlers'), 10); bowlers++) {
       addPlayer();
     }
-    document.getElementById('functionButtons').style.display = "none";
   } else {
     addPlayer();
   }

@@ -104,10 +104,23 @@
       width: 19em;
     }
 
+.floating-container {
+  /* Positions the container relative to the viewport */
+  position: fixed;
+  /* Adjust these values to position the button where you want it */
+  top: 10px;
+  left: 10px;
+  /* Ensures the button is above other content */
+  z-index: 1000; 
+}
   </style>
 </head>
 
 <body>
+<div class="floating-container">
+  <button class="scoreButton" onclick="clearScores()">CLR</button>
+</div>
+
   <table id="functionButtons" class="scoreButtonTable">
     <tr>
       <td class="scoreButton"><button class="functionButton" onclick="addPlayer()">Add</button></td>

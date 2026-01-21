@@ -37,6 +37,7 @@
       background: blue;
       color: white;
       font-weight: bold;
+      font-size: 13px;
     }
 
     button.scoreButton:disabled {
@@ -100,7 +101,7 @@
       text-align: right;
     }
 
-      input {
+    input {
       text-align: center;
       border: none;
     }
@@ -161,7 +162,7 @@
   <div class="floating-container-bottom-left">
     <table class="scoreButtonTable">
       <tr>
-        <td class="scoreButton"><button class="scoreButton" onclick="removeLastScore()"><-</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="markSplit()">S</button></td>
       </tr>
       <tr>
         <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">0</button></td>
@@ -169,7 +170,7 @@
         <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">2</button></td>
         <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">3</button></td>
         <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">4</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="markSplit()">S</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="removeLastScore()"><-</button></td>
       </tr>
       <tr>
         <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">5</button></td>
@@ -321,8 +322,10 @@
             e.disabled = false;
           } else if (e.name === 'strikeSpare') {
             e.textContent = prevScore === 'X' ? 'X' : '/';
+            e.disabled = false;
           } else if (e.textContent === 'S') {
-            e.disabled = prevScore === 'X' || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
+            e.style.display = prevScore === 'X' || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2 ? 'none' : 'block';
+            e.disabled = false;
           } else {
             e.disabled = prevScore !== 'X' && parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
           }
@@ -334,19 +337,26 @@
             e.disabled = false;
           } else if (e.name === 'strikeSpare') {
             e.textContent = prevScore === 'X' || prevScore == '/' ? 'X' : '/';
+            e.disabled = false;
           } else if (e.textContent === 'S') {
-            e.disabled = prevScore === 'X' || prevScore === "/" || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
+            e.style.display = prevScore === 'X' || prevScore === "/" || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2 ? 'none' : 'block';
+            e.disabled = false;
           } else {
             e.disabled = prevScore !== 'X' && parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
           }
         });        
       } else if (selected.cellIndex % 2 === 0) {  //first ball of all frames
         scoreButtons.forEach (e => { 
-          e.disabled = e.textContent === 'S';
-          if (e.name === 'strikeSpare')
-          {
+          if (e.textContent === 'S') {
+            e.style.display = 'none';
+            e.disabled = false;
+          } else if (e.name === 'strikeSpare') {
             e.textContent = 'X';
+            e.disabled = false;
+          } else {
+            e.disabled = false;
           }
+
         });
       } else {                                    //second ball of frames 2-9
         const prevScore = selected.previousElementSibling.textContent;
@@ -355,8 +365,10 @@
             e.disabled = false;
           } else if (e.name === 'strikeSpare') {
             e.textContent = '/';
+            e.disabled = false;
           } else if (e.textContent === 'S') {
-            e.disabled = parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
+            e.style.display = parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2 ? 'none' : 'block';
+            e.disabled = false;
           } else {
             e.disabled = parseInt(e.textContent, 10) + parseInt(prevScore, 10) > 9;
           }

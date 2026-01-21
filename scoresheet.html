@@ -23,8 +23,8 @@
     button.functionButton {
       cursor: pointer;
       height: 3em;
-      background: blue;
-      color: white;
+      background: red;
+      color: black;
       font-weight: bold;
       margin: 5px;
       display: none;
@@ -45,16 +45,15 @@
       background-color: #cccccc; /* Optional: change to a grey background */
     }
 
-    table {
+    table.scoreTable {
       border-collapse: collapse;
-      margin: 0 62px;
+      margin: 0 48px;
       background: #fff;
       font-size: 13px;
     }
 
     table.scoreButtonTable {
-      background: transparent;
-      margin: 0;
+      border-collapse: collapse;
     }
 
     th, td {
@@ -66,7 +65,7 @@
 
     td.scoreButton {
       border: none;
-      padding: 5px 8px;
+      padding: 5px 16px 5px 0px;
     }
 
     th.frame {
@@ -140,7 +139,7 @@
     <button class="functionButton" onclick="clearScores()">Clear Scores</button>
   </div>
 
-  <table id="scoreTable">
+  <table class="scoreTable" id="scoreTable">
     <thead>
       <tr><td colspan="21"><input class="note" /></td></tr>
       <tr>
@@ -165,23 +164,20 @@
         <td class="scoreButton"><button class="scoreButton" onclick="removeLastScore()"><-</button></td>
       </tr>
       <tr>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">0</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">1</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">2</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">3</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">4</button></td>
         <td class="scoreButton"><button class="scoreButton" onclick="markSplit()">S</button></td>
       </tr>
       <tr>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('0')">0</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('1')">1</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('2')">2</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('3')">3</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('4')">4</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('/')">/</button></td>
-      </tr>
-      <tr>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('5')">5</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('6')">6</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('7')">7</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('8')">8</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('9')">9</button></td>
-        <td class="scoreButton"><button class="scoreButton" onclick="addScore('X')">X</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">5</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">6</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">7</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">8</button></td>
+        <td class="scoreButton"><button class="scoreButton" onclick="addScore(this)">9</button></td>
+        <td class="scoreButton"><button name="strikeSpare" class="scoreButton" onclick="addScore(this)">X</button></td>
       </tr>
     </table>
   </div>
@@ -192,7 +188,7 @@
 
   function toggleFunctionButtons() {
     const funcButtons = document.querySelectorAll('button.functionButton');
-    funcButtons.forEach (e => { e.style.display = e.style.display !== 'inline' ? 'inline' : 'none'});
+    funcButtons.forEach (e => { e.style.display = e.style.display !== 'block' ? 'block' : 'none'});
   }
 
   function addPlayer() {
@@ -323,10 +319,8 @@
         scoreButtons.forEach (e => { 
           if (e.textContent.length > 1) {
             e.disabled = false;
-          } else if (e.textContent === 'X') {
-            e.disabled = prevScore !== 'X';
-          } else if (e.textContent === '/') {
-            e.disabled = prevScore === 'X';;
+          } else if (e.name === 'strikeSpare') {
+            e.textContent = prevScore === 'X' ? 'X' : '/';
           } else if (e.textContent === 'S') {
             e.disabled = prevScore === 'X' || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
           } else {
@@ -338,10 +332,8 @@
         scoreButtons.forEach (e => { 
           if (e.textContent.length > 1) {
             e.disabled = false;
-          } else if (e.textContent === 'X') {
-            e.disabled = prevScore !== 'X' && prevScore !== '/';
-          } else if (e.textContent === '/') {
-            e.disabled = prevScore === 'X' || prevScore === '/';
+          } else if (e.name === 'strikeSpare') {
+            e.textContent = prevScore === 'X' || prevScore == '/' ? 'X' : '/';
           } else if (e.textContent === 'S') {
             e.disabled = prevScore === 'X' || prevScore === "/" || parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
           } else {
@@ -349,16 +341,20 @@
           }
         });        
       } else if (selected.cellIndex % 2 === 0) {  //first ball of all frames
-        scoreButtons.forEach (e => { e.disabled = e.textContent === '/' || e.textContent === 'S'});
+        scoreButtons.forEach (e => { 
+          e.disabled = e.textContent === 'S';
+          if (e.name === 'strikeSpare')
+          {
+            e.textContent = 'X';
+          }
+        });
       } else {                                    //second ball of frames 2-9
         const prevScore = selected.previousElementSibling.textContent;
         scoreButtons.forEach (e => { 
           if (e.textContent.length > 1) {
             e.disabled = false;
-          } else if (e.textContent === 'X') {
-            e.disabled = true;
-          } else if (e.textContent === '/') {
-            e.disabled = false;
+          } else if (e.name === 'strikeSpare') {
+            e.textContent = '/';
           } else if (e.textContent === 'S') {
             e.disabled = parseInt(prevScore, 10) > 8 || parseInt(prevScore, 10) < 2;
           } else {
@@ -374,7 +370,9 @@
     scoreButtons.forEach (e => { e.disabled = false});
   }
       
-  function addScore(score) {
+  function addScore(clickedButton) {
+    const score = clickedButton.textContent;
+
     if (selected) {
       selected.textContent = score;
       calculateScore(selected.parentElement);

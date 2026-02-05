@@ -94,8 +94,13 @@
       font-weight: bold;
       height: 1em;
       border-bottom: 3px solid #333;
-
+      opacity: 0;
+      transition: opacity 2s ease-in-out; 
     }
+
+	td.is-visible {
+		opacity: 1;
+	}
 
     td.playerNote {
       text-align: right;
@@ -276,7 +281,7 @@
     rolls.forEach (e => { e.textContent = ''; e.classList.remove('split');});
 
     const scores = document.querySelectorAll('.frameTotal');
-    scores.forEach (e => { e.textContent = ''});
+    scores.forEach (e => { e.textContent = ''; e.classList.remove('is-visible')});
 
     const playerNote = document.querySelectorAll('.playerNote');
     playerNote.forEach (e => { e.textContent = ''});
@@ -496,7 +501,13 @@
         rollIndex += 2;
       }
 
-      frameCells[frame].textContent = showFrameScore ? score : ""; 
+	  if (showFrameScore) {
+		frameCells[frame].textContent = score; 
+		frameCells[frame].classList.add('is-visible'); 
+	  } else {
+		frameCells[frame].textContent = "";
+		frameCells[frame].classList.remove('is-visible'); 
+	  }
 
     }
 

@@ -57,11 +57,20 @@
       border-collapse: collapse;
     }
 
+    tr {
+      transition: background 2s ease-in-out; 
+    }
+      
+    tr.selected {
+      background-color: aqua;
+    }
+      
     th, td {
       border: 1px solid #333;
       padding: 2px;
       text-align: center;
       min-width: 8px;
+      background-color: transparent;
     }
 
     td.scoreButton {
@@ -82,7 +91,7 @@
     }
 
     td.split {
-        background-color: pink;
+      background-color: pink;
     }
       
     td.roll {
@@ -94,13 +103,7 @@
       font-weight: bold;
       height: 1em;
       border-bottom: 3px solid #333;
-      opacity: 0;
-      transition: opacity 2s ease-in-out; 
     }
-
-	td.is-visible {
-		opacity: 1;
-	}
 
     td.playerNote {
       text-align: right;
@@ -109,11 +112,7 @@
     input {
       text-align: center;
       border: none;
-    }
-
-    input:focus {
-      outline: none;
-      background: #eef;
+      background-color: transparent;
     }
 
     input.note {
@@ -281,7 +280,7 @@
     rolls.forEach (e => { e.textContent = ''; e.classList.remove('split');});
 
     const scores = document.querySelectorAll('.frameTotal');
-    scores.forEach (e => { e.textContent = ''; e.classList.remove('is-visible')});
+    scores.forEach (e => { e.textContent = ''});
 
     const playerNote = document.querySelectorAll('.playerNote');
     playerNote.forEach (e => { e.textContent = ''});
@@ -294,6 +293,10 @@
 
   function selectRow(rollRow) {
     if (selected) {
+      selected.parentElement.classList.remove('selected');
+      selected.parentElement.previousElementSibling.classList.remove('selected');
+      selected.parentElement.nextElementSibling.classList.remove('selected');
+
       selected.classList.remove('selected');
       selected = null;
     }
@@ -379,6 +382,11 @@
           }
         });
       }
+
+      selected.parentElement.classList.add('selected');
+      selected.parentElement.previousElementSibling.classList.add('selected');
+      selected.parentElement.nextElementSibling.classList.add('selected');
+      
     }
   }
 
@@ -503,10 +511,8 @@
 
 	  if (showFrameScore) {
 		frameCells[frame].textContent = score; 
-		frameCells[frame].classList.add('is-visible'); 
 	  } else {
 		frameCells[frame].textContent = "";
-		frameCells[frame].classList.remove('is-visible'); 
 	  }
 
     }

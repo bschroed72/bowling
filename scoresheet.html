@@ -58,7 +58,7 @@
     }
 
     tr {
-      transition: background 2s ease-in-out; 
+      transition: background 1.5s ease-in-out .8s; 
     }
       
     tr.selected {
@@ -100,11 +100,17 @@
       font-weight: bold;
       height: 1em;
     }
-
+      
     td.frameTotal {
       font-weight: bold;
       height: 1em;
       border-bottom: 3px solid #333;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    td.frameTotal.isvisible {
+      opacity: 1;
     }
 
     td.playerNote {
@@ -279,7 +285,7 @@
     rolls.forEach (e => { e.textContent = ''; e.classList.remove('split');});
 
     const scores = document.querySelectorAll('.frameTotal');
-    scores.forEach (e => { e.textContent = ''});
+    scores.forEach (e => { e.textContent = ''; e.classList.remove('isvisible')});
 
     const playerNote = document.querySelectorAll('.playerNote');
     playerNote.forEach (e => { e.textContent = ''});
@@ -397,17 +403,17 @@
   function addScore(clickedButton) {
     const score = clickedButton.textContent;
 
-    if (selected) {
+    if (selected) { 
       selected.textContent = score;
       calculateScore(selected.parentElement);
 
-      if (selected.cellIndex === 18) {
+        if (selected.cellIndex === 18) {
         selectRow(selected.parentElement);
       } else if (selected.cellIndex === 19 && (score === '/' || selected.previousElementSibling.textContent === 'X')) {
         selectRow(selected.parentElement);
       } else if (selected.cellIndex === 20 || score === 'X' || (selected.cellIndex % 2) === 1) {
         let candidateRow = selected.parentElement.nextElementSibling;
-        while (candidateRow.className !== 'rollRow') {
+        while (!candidateRow.className.startsWith('rollRow')) {
           candidateRow = candidateRow.nextElementSibling;
           if (!candidateRow) {
             candidateRow = document.querySelector(".rollRow");
@@ -510,8 +516,10 @@
 
 	  if (showFrameScore) {
 		frameCells[frame].textContent = score; 
+        frameCells[frame].classList.add('isvisible');
 	  } else {
 		frameCells[frame].textContent = "";
+        frameCells[frame].classList.remove('isvisible');
 	  }
 
     }

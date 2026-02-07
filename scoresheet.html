@@ -266,7 +266,8 @@
     if (!confirm("Are you sure you want to remove " + playerName)) {
       return;
     }
-    
+
+    selected = null;
     nameRow.nextElementSibling.remove();
     nameRow.nextElementSibling.remove();    
     nameRow.remove();

@@ -449,6 +449,100 @@
         return rolls;
       }
 
+      // Calculate the absolute minimum final score assuming 0 pins for all future balls
+      function calculateMinScore(p) {
+        const projected = { rolls: [...p.rolls], splits: new Set() };
+
+        // Fill remaining open frame rolls with zeros
+        for (let frame = 0; frame < 9; frame++) {
+          const idx1 = frame * 2;
+          const idx2 = frame * 2 + 1;
+
+          if (!projected.rolls[idx1]) {
+            projected.rolls[idx1] = "0";
+            projected.rolls[idx2] = "0";
+          } else if (
+            !isStrike(projected.rolls[idx1]) &&
+            !projected.rolls[idx2]
+          ) {
+            projected.rolls[idx2] = "0";
+          }
+        }
+
+        // 10th frame minimum projection
+        const r18 = projected.rolls[18];
+        const r19 = projected.rolls[19];
+        const r20 = projected.rolls[20];
+
+        if (!r18) {
+          projected.rolls[18] = "0";
+          projected.rolls[19] = "0";
+        } else if (!r19) {
+          projected.rolls[19] = "0";
+        }
+
+        // Only project 3rd ball if earned (strike or spare)
+        if (
+          (isStrike(projected.rolls[18]) ||
+            isSpare(projected.rolls[19]) ||
+            isStrike(projected.rolls[19])) &&
+          !projected.rolls[20]
+        ) {
+          projected.rolls[20] = "0";
+        }
+
+        const scores = calculateScores(projected);
+        return scores[9] ?? 0;
+      }
+
+      // Calculate the maximum possible final score assuming strikes for all future balls
+      function calculateMaxScore(p) {
+        // Build a projected roll array where unrolled shots are completed as strikes
+        const projected = { rolls: [...p.rolls], splits: new Set() };
+
+        for (let frame = 0; frame < 9; frame++) {
+          const idx1 = frame * 2;
+          const idx2 = frame * 2 + 1;
+
+          if (!projected.rolls[idx1]) {
+            // First ball not bowled: project a strike
+            projected.rolls[idx1] = "X";
+            projected.rolls[idx2] = "";
+          } else if (
+            !isStrike(projected.rolls[idx1]) &&
+            !projected.rolls[idx2]
+          ) {
+            // First ball bowled (not a strike), second ball open: project a spare
+            projected.rolls[idx2] = "/";
+          }
+        }
+
+        // Handle 10th Frame projection
+        const r18 = projected.rolls[18];
+        const r19 = projected.rolls[19];
+        const r20 = projected.rolls[20];
+
+        if (!r18) {
+          // No rolls in 10th: project 3 strikes
+          projected.rolls[18] = "X";
+          projected.rolls[19] = "X";
+          projected.rolls[20] = "X";
+        } else if (!r19) {
+          if (isStrike(r18)) {
+            projected.rolls[19] = "X";
+            projected.rolls[20] = "X";
+          } else {
+            projected.rolls[19] = "/";
+            projected.rolls[20] = "X";
+          }
+        } else if (!r20 && (isStrike(r18) || isSpare(r19) || isStrike(r19))) {
+          projected.rolls[20] = "X";
+        }
+
+        const scores = calculateScores(projected);
+        return scores[9] ?? 0;
+      }
+
       function calculateScores(p) {
         const scores = Array(FRAMES).fill(null);
         const rolls = chronologicalRolls(p);
@@ -510,11 +604,6 @@
           });
 
           const scores = calculateScores(p);
-          const lastScore = [...scores]
-            .reverse()
-            .find((score) => score !== null);
-          nameRow.cells[1].textContent = `Min: ${lastScore ?? 0}`;
-
           p.rolls.forEach((roll, rIdx) => {
             const cell = rollRow.cells[rIdx];
             cell.textContent = roll;
@@ -530,6 +619,8 @@
             cell.textContent = score !== null ? score : "";
             cell.classList.toggle("isvisible", score !== null);
           });
+
+          nameRow.cells[1].textContent = `Min: ${calculateMinScore(p)} - Max: ${calculateMaxScore(p)}`;
         });
 
         updateScoreButtons();

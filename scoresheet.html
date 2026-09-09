@@ -158,7 +158,11 @@
       <button class="functionButton" onclick="clearScores()">
         Clear All Scores
       </button>
-      <button class="functionButton" onclick="loadHeaderViaJSONP()">
+      <button
+        class="functionButton"
+        id="btnLoadScore"
+        onclick="loadHeaderViaJSONP()"
+      >
         Load Match Score
       </button>
       <button class="functionButton" onclick="addTeam()">+ Add Team</button>
@@ -176,22 +180,18 @@
     <!-- Dynamic Teams Master Container -->
     <div id="teamsContainer"></div>
 
-    <input class="input-message" id="TopMessage" />
+    <input class="input-message" id="BottomMessage" />
 
     <script>
       const ROLLS = 21;
       const FRAMES = 10;
       let spreadSheetId = "";
-      let spreadSheetRow = 0;
-      let spreadSheetCol = 0;
 
       let teams = [];
 
       function initApp() {
         const urlParams = new URLSearchParams(window.location.search);
         spreadSheetId = urlParams.get("spreadsheetid");
-        spreadSheetRow = parseInt(urlParams.get("spreadsheetrow"), 10);
-        spreadSheetCol = parseInt(urlParams.get("spreadsheetcol"), 10);
 
         const teamCountParam = parseInt(urlParams.get("teams"), 10);
         const totalTeams =
@@ -248,6 +248,12 @@
 
       function toggleFunctionButtons() {
         document.querySelectorAll(".functionButton").forEach((button) => {
+          // Skip displaying the Load Match Score button if spreadsheetid is empty
+          if (button.id === "btnLoadScore" && !spreadSheetId) {
+            button.style.display = "none";
+            return;
+          }
+
           button.style.display =
             button.style.display === "block" ? "none" : "block";
         });
@@ -861,13 +867,10 @@
 
         window.googleSheetCallback = function (data) {
           try {
-            console.log("Spreadsheet Data Received", data.table.rows);
-            const dataRow = data.table.rows[spreadSheetRow];
-            const headerText =
-              dataRow && dataRow.c[spreadSheetCol]
-                ? `${dataRow.c[spreadSheetCol].v}`
-                : "";
-            const headerInput = document.querySelector("#TopMessage");
+            console.log("Spreadsheet Data Received", data);
+            const dataRow = data.table.cols[0];
+            const headerText = dataRow ? `${dataRow.label}` : "";
+            const headerInput = document.querySelector("#BottomMessage");
             if (headerInput && headerText) headerInput.value = headerText;
           } catch (err) {
             console.error("Error parsing Google Sheet data:", err);

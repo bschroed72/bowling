@@ -133,8 +133,10 @@
         text-align: center;
       }
 
-      td.split {
-        background-color: pink;
+      /* Ensure Split Styling Always Takes Precedence */
+      table.scoreTable td.roll.split {
+        background-color: #ffb6c1 !important; /* Classic Pink */
+        color: #000;
       }
 
       td.frameTotal {
@@ -187,6 +189,52 @@
         opacity: 0.4;
         cursor: not-allowed;
         background-color: #475569;
+      }
+
+      /* Flying Overlay Element */
+      .flyer-symbol {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        font-family: Arial, sans-serif;
+        font-weight: 900;
+        font-size: 42px;
+        line-height: 1;
+        text-align: center;
+        transform-origin: center center;
+      }
+
+      .flyer-symbol.strike {
+        color: #fbbf24;
+        text-shadow:
+          0 0 20px #f59e0b,
+          0 0 40px #d97706,
+          0 4px 8px rgba(0, 0, 0, 0.9);
+      }
+
+      .flyer-symbol.spare {
+        color: #38bdf8;
+        text-shadow:
+          0 0 20px #0284c7,
+          0 0 40px #0369a1,
+          0 4px 8px rgba(0, 0, 0, 0.9);
+      }
+
+      /* Landing Impact Pop on Cell */
+      @keyframes cellImpact {
+        0% {
+          transform: scale(1.4);
+          background-color: #f59e0b;
+          color: #000;
+        }
+        100% {
+          transform: scale(1);
+          color: #000;
+        }
+      }
+
+      td.roll.anim-impact {
+        animation: cellImpact 0.35s ease-out;
       }
     </style>
   </head>
@@ -432,6 +480,74 @@
         render();
       }
 
+      function flyScoreSymbol(symbol, targetCell, onComplete) {
+        if (!targetCell) {
+          if (onComplete) onComplete();
+          return;
+        }
+
+        const targetRect = targetCell.getBoundingClientRect();
+        const flyer = document.createElement("div");
+        flyer.className = `flyer-symbol ${symbol === "X" ? "strike" : "spare"}`;
+        flyer.textContent = symbol;
+        document.body.appendChild(flyer);
+
+        const startX = window.innerWidth / 2;
+        const startY = window.innerHeight / 2;
+        const targetCenterX = targetRect.left + targetRect.width / 2;
+        const targetCenterY = targetRect.top + targetRect.height / 2;
+
+        flyer.style.left = `${startX}px`;
+        flyer.style.top = `${startY}px`;
+
+        // Total duration: 1100ms
+        // 0ms - 165ms: Pop in to huge scale
+        // 165ms - 805ms: Hold prominently in center
+        // 805ms - 1100ms: Smoothly travel and shrink into target cell
+        const animation = flyer.animate(
+          [
+            {
+              transform: "translate(-50%, -50%) scale(0.2)",
+              opacity: 0,
+            },
+            {
+              transform: "translate(-50%, -50%) scale(15.0)",
+              opacity: 1,
+              offset: 0.15,
+            },
+            {
+              transform: "translate(-50%, -50%) scale(13.8)",
+              opacity: 1,
+              offset: 0.75,
+            },
+            {
+              transform: `translate(${targetCenterX - startX}px, ${targetCenterY - startY}px) translate(-50%, -50%) scale(0.45)`,
+              opacity: 0.9,
+              offset: 1.0,
+            },
+          ],
+          {
+            duration: 1100,
+            easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+          },
+        );
+
+        animation.onfinish = () => {
+          flyer.remove();
+          if (targetCell) {
+            targetCell.classList.remove("anim-impact");
+            void targetCell.offsetWidth; // Reflow
+            targetCell.classList.add("anim-impact");
+
+            // Remove the class after the animation completes so it doesn't lock styles
+            setTimeout(() => {
+              targetCell.classList.remove("anim-impact");
+            }, 400);
+          }
+          if (onComplete) onComplete();
+        };
+      }
+
       function activeRollIndex(p) {
         for (let i = 0; i < ROLLS; i++) {
           if (p.rolls[i]) continue;
@@ -532,29 +648,75 @@
         });
       }
 
+      let isAnimationInProgress = false;
+
       function addScore(teamIndex, button) {
+        if (isAnimationInProgress) return;
+
+        const team = teams[teamIndex];
+        if (!team) return;
         const p = getPlayer(teamIndex);
         if (!p) return;
         const index = activeRollIndex(p);
         if (index < 0) return;
-        p.rolls[index] = button.textContent;
+
+        const value = button.textContent;
+
+        // Locate the DOM cell for this roll prior to rebuilding/rendering
+        const rollRow = team.tbody
+          ? team.tbody.children[team.selectedIndex * 3 + 1]
+          : null;
+        const targetCell = rollRow ? rollRow.cells[index] : null;
+
+        // Record roll
+        p.rolls[index] = value;
         p.splits.delete(index);
+
+        // Determine if turn advances to the next bowler
         const advance =
           index === 20 ||
           (index === 19 &&
-            !isSpare(button.textContent) &&
-            !isStrike(button.textContent) &&
+            !isSpare(value) &&
+            !isStrike(value) &&
             !isStrike(p.rolls[18])) ||
-          (isStrike(button.textContent) && index !== 18 && index !== 19) ||
+          (isStrike(value) && index !== 18 && index !== 19) ||
           (index % 2 === 1 && index !== 19);
 
-        if (advance) {
-          teams[teamIndex].selectedIndex = nextActivePlayerIndex(
-            teamIndex,
-            teams[teamIndex].selectedIndex,
-          );
+        const isAnimatedRoll = isStrike(value) || isSpare(value);
+
+        if (isAnimatedRoll && advance && targetCell) {
+          // Keep current bowler highlighted during the flight
+          render();
+          isAnimationInProgress = true;
+
+          flyScoreSymbol(value, targetCell, () => {
+            // Advance bowler and update highlight only after flight finishes
+            team.selectedIndex = nextActivePlayerIndex(
+              teamIndex,
+              team.selectedIndex,
+            );
+            isAnimationInProgress = false;
+            render();
+          });
+        } else if (isAnimatedRoll && targetCell) {
+          // Animated roll within same frame (e.g., 10th frame strike) without player advance
+          render();
+          isAnimationInProgress = true;
+
+          flyScoreSymbol(value, targetCell, () => {
+            isAnimationInProgress = false;
+            render();
+          });
+        } else {
+          // Immediate advance for standard number rolls
+          if (advance) {
+            team.selectedIndex = nextActivePlayerIndex(
+              teamIndex,
+              team.selectedIndex,
+            );
+          }
+          render();
         }
-        render();
       }
 
       function markSplit(teamIndex) {

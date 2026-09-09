@@ -6,17 +6,22 @@
     <title>Bowling Scoresheet</title>
     <style>
       body {
+        margin: 45px 0 0 0;
         font-family: Arial, sans-serif;
         background: #000000;
+        color: #ffffff;
       }
+
       button.menuButton {
+        background: #222;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 8px 12px;
+        font-size: 12px;
         cursor: pointer;
-        height: 3em;
-        background: black;
-        color: white;
-        border: 1px solid white;
         font-weight: bold;
       }
+
       button.functionButton {
         cursor: pointer;
         height: 3em;
@@ -26,6 +31,7 @@
         margin: 5px;
         display: none;
       }
+
       button.scoreButton {
         cursor: pointer;
         height: 3em;
@@ -35,26 +41,33 @@
         font-weight: bold;
         font-size: 13px;
       }
+
       button.scoreButton:disabled {
         opacity: 0.5;
         cursor: not-allowed;
         background-color: #cccccc;
       }
+
+      .team-wrapper {
+        border-top: 5px dashed #666;
+      }
+
       table.scoreTable {
         border-collapse: collapse;
-        margin: 0 48px;
         background: #fff;
+        color: #000;
         font-size: 13px;
       }
+
       table.scoreButtonTable {
         border-collapse: collapse;
       }
 
-      /* Smooth background fade configuration */
       tr {
         background-color: transparent;
         transition: background-color 0.8s ease-in-out;
       }
+
       tr.selected {
         background-color: aqua;
       }
@@ -62,221 +75,155 @@
       th,
       td {
         border: 1px solid #333;
-        padding: 2px;
-        text-align: center;
-        min-width: 8px;
         background-color: transparent;
       }
-      td.scoreButton {
+
+      td.scoreButtonCell {
         border: none;
         padding: 5px 16px 5px 0px;
       }
+
       th.frame {
         background: #ddd;
       }
-      th.player {
-        min-width: 60px;
-      }
+
       td.split {
         background-color: pink;
       }
+
       td.roll {
         font-weight: bold;
-        height: 1em;
+        padding: 2px;
+        min-width: 10px;
+        height: 1.2em;
+        text-align: center;
       }
+
       td.frameTotal {
         font-weight: bold;
-        height: 1em;
+        height: 1.2em;
         border-bottom: 3px solid #333;
+        text-align: center;
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
       }
+
       td.frameTotal.isvisible {
         opacity: 1;
       }
+
       td.playerNote {
         text-align: right;
       }
-      input {
-        text-align: center;
-        border: none;
-        background-color: transparent;
-        width: 19em;
-      }
+
       .floating-container-top-left {
         position: fixed;
-        top: 10px;
-        left: 10px;
+        top: 5px;
+        left: 0px;
         z-index: 1000;
       }
-      .floating-container-bottom-left {
+
+      .input-playername {
+        width: 110px;
+        font-size: 14px;
+        color: black;
+        background-color: transparent;
+        border: 0;
+      }
+
+      .input-message {
+        width: 305px;
+        font-size: 16px;
+        color: cyan;
+        background-color: #333;
+        border: 0;
+        text-align: center;
         position: fixed;
-        bottom: 0px;
-        left: 10px;
-        z-index: 900;
+        bottom: 2px;
+        left: 2px;
+      }
+
+      .container-keypad {
+        margin: 0;
       }
     </style>
   </head>
+
   <body>
-    <div>
-      <div class="floating-container-top-left">
-        <button class="menuButton" onclick="toggleFunctionButtons()">
-          ...
-        </button>
-        <button class="functionButton" onclick="addPlayer()">Add Bowler</button>
-        <button class="functionButton" onclick="removePlayer()">
-          Remove Bowler
-        </button>
-        <button class="functionButton" onclick="clearScores()">
-          Clear Scores
-        </button>
-        <button class="functionButton" onclick="loadHeaderViaJSONP()">
-          Load Match Score
-        </button>
-      </div>
-      <table class="scoreTable" id="scoreTable">
-        <thead>
-          <tr>
-            <td colspan="21"><input /></td>
-          </tr>
-          <tr>
-            <th class="frame" colspan="2">1</th>
-            <th class="frame" colspan="2">2</th>
-            <th class="frame" colspan="2">3</th>
-            <th class="frame" colspan="2">4</th>
-            <th class="frame" colspan="2">5</th>
-            <th class="frame" colspan="2">6</th>
-            <th class="frame" colspan="2">7</th>
-            <th class="frame" colspan="2">8</th>
-            <th class="frame" colspan="2">9</th>
-            <th class="frame" colspan="3">10</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div class="floating-container-bottom-left">
-        <table class="scoreButtonTable">
-          <tr>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="markSplit()">S</button>
-            </td>
-          </tr>
-          <tr>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="removeLastScore()">
-                &lt;-
-              </button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">9</button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">7</button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">5</button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">3</button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">1</button>
-            </td>
-          </tr>
-          <tr>
-            <td class="scoreButton">
-              <button
-                name="strikeSpare"
-                class="scoreButton"
-                onclick="addScore(this)"
-              >
-                X
-              </button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">8</button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">6</button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">4</button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">2</button>
-            </td>
-            <td class="scoreButton">
-              <button class="scoreButton" onclick="addScore(this)">0</button>
-            </td>
-          </tr>
-        </table>
-      </div>
+    <!-- Top Global Menu Controls -->
+    <div class="floating-container-top-left">
+      <button class="menuButton" onclick="toggleFunctionButtons()">More...</button>
+      <button class="functionButton" onclick="clearScores()">
+        Clear All Scores
+      </button>
+      <button class="functionButton" onclick="loadHeaderViaJSONP()">
+        Load Match Score
+      </button>
+      <button class="functionButton" onclick="addTeam()">+ Add Team</button>
+      <button class="functionButton" onclick="promptRemoveTeam()">
+        - Remove Team
+      </button>
+      <button class="functionButton" onclick="promptAddPlayer()">
+        + Add Bowler
+      </button>
+      <button class="functionButton" onclick="promptRemovePlayer()">
+        - Remove Bowler
+      </button>
     </div>
+
+    <!-- Dynamic Teams Master Container -->
+    <div id="teamsContainer"></div>
+
+    <input class="input-message" id="TopMessage" />
 
     <script>
       const ROLLS = 21;
       const FRAMES = 10;
-      let players = [];
-      let selectedPlayer = -1;
-      const tbody = document.querySelector("#scoreTable tbody");
-
       const SPREADSHEET_ID = "1_CbJgvjdYvm8qavAlnCnxMYzsJ1_FVNgFMGrvF0COFI";
 
-      function loadHeaderViaJSONP() {
-        toggleFunctionButtons();
-        const scriptId = "google-sheet-jsonp-script";
+      let teams = [];
 
-        // 1. Remove any previous script tag if it exists
-        const existingScript = document.getElementById(scriptId);
-        if (existingScript) {
-          existingScript.remove();
+      function initApp() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const teamCountParam = parseInt(urlParams.get("teams"), 10);
+        const totalTeams =
+          Number.isFinite(teamCountParam) && teamCountParam > 0
+            ? teamCountParam
+            : 1;
+
+        teams = [];
+        for (let t = 0; t < totalTeams; t++) {
+          const bowlerCountParam = parseInt(urlParams.get(`team${t}count`), 10);
+          const bowlerCount =
+            Number.isFinite(bowlerCountParam) && bowlerCountParam > 0
+              ? bowlerCountParam
+              : 1;
+
+          const teamObj = createNewTeam(`Team ${t + 1}`);
+          for (let b = 0; b < bowlerCount; b++) {
+            teamObj.players.push(newPlayer());
+          }
+          teams.push(teamObj);
         }
 
-        // 2. Define the callback function
-        window.googleSheetCallback = function (data) {
-          try {
-            const firstRow = data.table.rows[7];
-            const headerText =
-              firstRow && firstRow.c[0] && firstRow.c[1] && firstRow.c[2]
-                ? `${firstRow.c[0].v}: BORO: ${firstRow.c[1].v} - VS: ${firstRow.c[2].v}`
-                : "";
+        fullRebuild();
+      }
 
-            const headerInput = document.querySelector(
-              "#scoreTable thead input",
-            );
-            if (headerInput && headerText) {
-              headerInput.value = headerText;
-            }
-          } catch (err) {
-            console.error("Error parsing Google Sheet data:", err);
-          } finally {
-            // 3. Clean up the script tag after execution
-            const currentScript = document.getElementById(scriptId);
-            if (currentScript) {
-              currentScript.remove();
-            }
-          }
+      function createNewTeam(name) {
+        return {
+          players: [],
+          selectedIndex: 0,
+          tbody: null,
         };
-
-        // 4. Inject script with cache-busting timestamp
-        const script = document.createElement("script");
-        script.id = scriptId;
-        script.src = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=responseHandler:googleSheetCallback&_t=${Date.now()}`;
-
-        script.onerror = function () {
-          console.error("Failed to load data from Google Sheets.");
-          script.remove();
-        };
-
-        document.body.appendChild(script);
       }
 
       function newPlayer() {
         return { name: "", rolls: Array(ROLLS).fill(""), splits: new Set() };
       }
 
-      function player() {
-        return players[selectedPlayer] || null;
+      function getPlayer(teamIndex) {
+        const t = teams[teamIndex];
+        return t ? t.players[t.selectedIndex] || null : null;
       }
 
       function rollPoints(roll) {
@@ -298,23 +245,107 @@
         });
       }
 
-      function addPlayer() {
-        players.push(newPlayer());
-        selectedPlayer = players.length - 1;
+      function addTeam() {
+        const nextNumber = teams.length + 1;
+        const team = createNewTeam(`Team ${nextNumber}`);
+        team.players.push(newPlayer());
+        teams.push(team);
         fullRebuild();
       }
 
-      function removePlayer() {
-        const p = player();
-        if (!p) {
-          alert("Please select a player to remove");
+      function promptRemoveTeam() {
+        toggleFunctionButtons();
+        if (teams.length <= 1) {
+          alert("At least one team must remain active.");
           return;
         }
-        const name = p.name || `Player ${selectedPlayer + 1}`;
-        if (!confirm(`Are you sure you want to remove ${name}`)) return;
-        players.splice(selectedPlayer, 1);
-        selectedPlayer = players.length
-          ? Math.min(selectedPlayer, players.length - 1)
+        const teamIndex = promptTeamIndex("Remove Team");
+        if (teamIndex !== null) {
+          removeTeam(teamIndex);
+        }
+      }
+
+      function removeTeam(teamIndex) {
+        if (teams.length <= 1) {
+          alert("At least one team must remain active.");
+          return;
+        }
+        const team = teams[teamIndex];
+        if (!team) return;
+
+        const bowlerNames = team.players
+          .map((p, idx) => p.name.trim() || `Bowler ${idx + 1}`)
+          .join(", ");
+
+        const msg = bowlerNames
+          ? `Are you sure you want to remove Team ${teamIndex} (${bowlerNames})?`
+          : `Are you sure you want to remove Team ${teamIndex}?`;
+
+        if (confirm(msg)) {
+          teams.splice(teamIndex, 1);
+          fullRebuild();
+        }
+      }
+
+      function promptTeamIndex(actionName) {
+        if (teams.length === 0) return null;
+        if (teams.length === 1) return 0;
+
+        const options = teams.map((_, i) => `${i}`).join(", ");
+        const response = prompt(
+          `${actionName}: Which team number (${options})?`,
+          "0",
+        );
+        if (response === null) return null;
+
+        const idx = parseInt(response.trim(), 10);
+        if (!isNaN(idx) && idx >= 0 && idx < teams.length) {
+          return idx;
+        }
+        alert(`Invalid team number. Please choose one of: ${options}`);
+        return null;
+      }
+
+      function promptAddPlayer() {
+        toggleFunctionButtons();
+        const teamIndex = promptTeamIndex("Add Bowler");
+        if (teamIndex !== null) {
+          addPlayer(teamIndex);
+        }
+      }
+
+      function promptRemovePlayer() {
+        toggleFunctionButtons();
+        const teamIndex = promptTeamIndex("Remove Bowler");
+        if (teamIndex !== null) {
+          removePlayer(teamIndex);
+        }
+      }
+
+      function addPlayer(teamIndex) {
+        const team = teams[teamIndex];
+        if (!team) return;
+        team.players.push(newPlayer());
+        team.selectedIndex = team.players.length - 1;
+        fullRebuild();
+      }
+
+      function removePlayer(teamIndex) {
+        const team = teams[teamIndex];
+        if (!team || team.players.length === 0) return;
+        const p = getPlayer(teamIndex);
+        if (!p) return;
+
+        if (
+          !confirm(
+            `Are you sure you want to remove ${p.name || "unnamed bowler"}?`,
+          )
+        )
+          return;
+
+        team.players.splice(team.selectedIndex, 1);
+        team.selectedIndex = team.players.length
+          ? Math.min(team.selectedIndex, team.players.length - 1)
           : -1;
         fullRebuild();
       }
@@ -322,23 +353,28 @@
       function clearScores() {
         if (
           !confirm(
-            "This will remove ALL scores from ALL bowlers - are you sure?",
+            "This will remove ALL scores from ALL bowlers across all teams. Proceed?",
           )
         ) {
           toggleFunctionButtons();
           return;
         }
-        players.forEach((p) => {
-          p.rolls.fill("");
-          p.splits.clear();
+        teams.forEach((team) => {
+          team.players.forEach((p) => {
+            p.rolls.fill("");
+            p.splits.clear();
+          });
+          team.selectedIndex = 0;
         });
         render();
         toggleFunctionButtons();
       }
 
-      function selectPlayer(index) {
-        if (index < 0 || index >= players.length) return;
-        selectedPlayer = index;
+      function selectPlayer(teamIndex, playerIndex) {
+        const team = teams[teamIndex];
+        if (!team || playerIndex < 0 || playerIndex >= team.players.length)
+          return;
+        team.selectedIndex = playerIndex;
         render();
       }
 
@@ -357,15 +393,15 @@
         return -1;
       }
 
-      // Locate the next player in sequence who still has unfinished frames
-      function nextActivePlayerIndex(startIndex) {
-        for (let i = 1; i <= players.length; i++) {
-          const candidateIndex = (startIndex + i) % players.length;
-          if (activeRollIndex(players[candidateIndex]) !== -1) {
+      function nextActivePlayerIndex(teamIndex, startIndex) {
+        const team = teams[teamIndex];
+        for (let i = 1; i <= team.players.length; i++) {
+          const candidateIndex = (startIndex + i) % team.players.length;
+          if (activeRollIndex(team.players[candidateIndex]) !== -1) {
             return candidateIndex;
           }
         }
-        return startIndex; // If all players are finished, remain on current player
+        return startIndex;
       }
 
       function buttonRules(p, index) {
@@ -408,29 +444,42 @@
       }
 
       function updateScoreButtons() {
-        const buttons = [...document.querySelectorAll("button.scoreButton")];
-        const p = player();
-        const index = p ? activeRollIndex(p) : -1;
-        const rules = buttonRules(p || newPlayer(), index);
-        buttons.forEach((button) => {
-          button.disabled = false;
-          if (button.name === "strikeSpare") {
-            button.textContent = rules.strikeSpare;
-          } else if (button.textContent === "S") {
-            button.style.display = rules.showSplit ? "block" : "none";
-          } else if (/^\d$/.test(button.textContent)) {
-            button.disabled = rules.disabledNumbers.has(button.textContent);
+        teams.forEach((team, teamIndex) => {
+          const keypad = document.querySelector(
+            `.scoreButtonTable[data-team="${teamIndex}"]`,
+          );
+          if (!keypad) return;
+
+          const buttons = [...keypad.querySelectorAll("button.scoreButton")];
+          const p = getPlayer(teamIndex);
+          const index = p ? activeRollIndex(p) : -1;
+          const rules = buttonRules(p || newPlayer(), index);
+
+          buttons.forEach((button) => {
+            button.disabled = false;
+            button.style.display = "block";
+            if (button.name === "strikeSpare") {
+              button.textContent = rules.strikeSpare;
+            } else if (button.textContent === "S") {
+              button.style.display = rules.showSplit ? "block" : "none";
+            } else if (button.textContent === "9") {
+              button.style.display = rules.showSplit ? "none" : "block";
+              button.disabled = rules.disabledNumbers.has(button.textContent);
+            } else if (/^\d$/.test(button.textContent)) {
+              button.disabled = rules.disabledNumbers.has(button.textContent);
+            }
+          });
+
+          if (p && index === -1) {
+            buttons.forEach((button) => {
+              button.disabled = button.textContent.length === 1;
+            });
           }
         });
-        if (p && index === -1) {
-          buttons.forEach((button) => {
-            button.disabled = button.textContent.length === 1;
-          });
-        }
       }
 
-      function addScore(button) {
-        const p = player();
+      function addScore(teamIndex, button) {
+        const p = getPlayer(teamIndex);
         if (!p) return;
         const index = activeRollIndex(p);
         if (index < 0) return;
@@ -446,13 +495,16 @@
           (index % 2 === 1 && index !== 19);
 
         if (advance) {
-          selectedPlayer = nextActivePlayerIndex(selectedPlayer);
+          teams[teamIndex].selectedIndex = nextActivePlayerIndex(
+            teamIndex,
+            teams[teamIndex].selectedIndex,
+          );
         }
         render();
       }
 
-      function markSplit() {
-        const p = player();
+      function markSplit(teamIndex) {
+        const p = getPlayer(teamIndex);
         if (!p) return;
         const index = activeRollIndex(p);
         const previous = index - 1;
@@ -464,8 +516,8 @@
         render();
       }
 
-      function removeLastScore() {
-        const p = player();
+      function removeLastScore(teamIndex) {
+        const p = getPlayer(teamIndex);
         if (!p) return;
         let index = activeRollIndex(p);
         if (index < 0) index = ROLLS;
@@ -514,15 +566,11 @@
         return rolls;
       }
 
-      // Calculate the absolute minimum final score assuming 0 pins for all future balls
       function calculateMinScore(p) {
         const projected = { rolls: [...p.rolls], splits: new Set() };
-
-        // Fill remaining open frame rolls with zeros
         for (let frame = 0; frame < 9; frame++) {
           const idx1 = frame * 2;
           const idx2 = frame * 2 + 1;
-
           if (!projected.rolls[idx1]) {
             projected.rolls[idx1] = "0";
             projected.rolls[idx2] = "0";
@@ -533,20 +581,14 @@
             projected.rolls[idx2] = "0";
           }
         }
-
-        // 10th frame minimum projection
         const r18 = projected.rolls[18];
         const r19 = projected.rolls[19];
-        const r20 = projected.rolls[20];
-
         if (!r18) {
           projected.rolls[18] = "0";
           projected.rolls[19] = "0";
         } else if (!r19) {
           projected.rolls[19] = "0";
         }
-
-        // Only project 3rd ball if earned (strike or spare)
         if (
           (isStrike(projected.rolls[18]) ||
             isSpare(projected.rolls[19]) ||
@@ -555,40 +597,29 @@
         ) {
           projected.rolls[20] = "0";
         }
-
         const scores = calculateScores(projected);
         return scores[9] ?? 0;
       }
 
-      // Calculate the maximum possible final score assuming strikes for all future balls
       function calculateMaxScore(p) {
-        // Build a projected roll array where unrolled shots are completed as strikes
         const projected = { rolls: [...p.rolls], splits: new Set() };
-
         for (let frame = 0; frame < 9; frame++) {
           const idx1 = frame * 2;
           const idx2 = frame * 2 + 1;
-
           if (!projected.rolls[idx1]) {
-            // First ball not bowled: project a strike
             projected.rolls[idx1] = "X";
             projected.rolls[idx2] = "";
           } else if (
             !isStrike(projected.rolls[idx1]) &&
             !projected.rolls[idx2]
           ) {
-            // First ball bowled (not a strike), second ball open: project a spare
             projected.rolls[idx2] = "/";
           }
         }
-
-        // Handle 10th Frame projection
         const r18 = projected.rolls[18];
         const r19 = projected.rolls[19];
         const r20 = projected.rolls[20];
-
         if (!r18) {
-          // No rolls in 10th: project 3 strikes
           projected.rolls[18] = "X";
           projected.rolls[19] = "X";
           projected.rolls[20] = "X";
@@ -603,7 +634,6 @@
         } else if (!r20 && (isStrike(r18) || isSpare(r19) || isStrike(r19))) {
           projected.rolls[20] = "X";
         }
-
         const scores = calculateScores(projected);
         return scores[9] ?? 0;
       }
@@ -651,102 +681,204 @@
         return scores;
       }
 
-      // Maintains DOM persistence so CSS background color transitions trigger cleanly
+      function buildKeypadHTML(teamIndex) {
+        return `
+          <div class="container-keypad">
+            <table class="scoreButtonTable" data-team="${teamIndex}">
+              <tr>
+                <td class="scoreButtonCell">
+                  <button class="scoreButton" onclick="removeLastScore(${teamIndex})">&lt;-</button>
+                </td>
+                <td class="scoreButtonCell">
+                  <button class="scoreButton" onclick="addScore(${teamIndex}, this)">9</button>
+                  <button class="scoreButton" onclick="markSplit(${teamIndex})">S</button>
+                </td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">7</button></td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">5</button></td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">3</button></td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">1</button></td>
+              </tr>
+              <tr>
+                <td class="scoreButtonCell">
+                  <button name="strikeSpare" class="scoreButton" onclick="addScore(${teamIndex}, this)">X</button>
+                </td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">8</button></td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">6</button></td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">4</button></td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">2</button></td>
+                <td class="scoreButtonCell"><button class="scoreButton" onclick="addScore(${teamIndex}, this)">0</button></td>
+              </tr>
+            </table>
+          </div>
+        `;
+      }
+
       function render() {
-        if (tbody.children.length !== players.length * 3) {
+        const requiresRebuild = teams.some(
+          (t) => !t.tbody || t.tbody.children.length !== t.players.length * 3,
+        );
+        if (requiresRebuild) {
           fullRebuild();
           return;
         }
 
-        players.forEach((p, idx) => {
-          const nameRow = tbody.children[idx * 3];
-          const rollRow = tbody.children[idx * 3 + 1];
-          const totalRow = tbody.children[idx * 3 + 2];
-          const isCurrent = idx === selectedPlayer;
+        teams.forEach((team, tIdx) => {
+          team.players.forEach((p, idx) => {
+            const nameRow = team.tbody.children[idx * 3];
+            const rollRow = team.tbody.children[idx * 3 + 1];
+            const totalRow = team.tbody.children[idx * 3 + 2];
+            const isCurrent = idx === team.selectedIndex;
 
-          [nameRow, rollRow, totalRow].forEach((row) => {
-            row.classList.toggle("selected", isCurrent);
+            [nameRow, rollRow, totalRow].forEach((row) => {
+              row.classList.toggle("selected", isCurrent);
+            });
+
+            const scores = calculateScores(p);
+            p.rolls.forEach((roll, rIdx) => {
+              const cell = rollRow.cells[rIdx];
+              cell.textContent = roll;
+              cell.classList.toggle("split", p.splits.has(rIdx));
+              cell.classList.toggle(
+                "selected",
+                isCurrent && rIdx === activeRollIndex(p),
+              );
+            });
+
+            scores.forEach((score, fIdx) => {
+              const cell = totalRow.cells[fIdx];
+              cell.textContent = score !== null ? score : "";
+              cell.classList.toggle("isvisible", score !== null);
+            });
+
+            nameRow.cells[1].textContent = `Min: ${calculateMinScore(p)} - Max: ${calculateMaxScore(p)}`;
           });
-
-          const scores = calculateScores(p);
-          p.rolls.forEach((roll, rIdx) => {
-            const cell = rollRow.cells[rIdx];
-            cell.textContent = roll;
-            cell.classList.toggle("split", p.splits.has(rIdx));
-            cell.classList.toggle(
-              "selected",
-              isCurrent && rIdx === activeRollIndex(p),
-            );
-          });
-
-          scores.forEach((score, fIdx) => {
-            const cell = totalRow.cells[fIdx];
-            cell.textContent = score !== null ? score : "";
-            cell.classList.toggle("isvisible", score !== null);
-          });
-
-          nameRow.cells[1].textContent = `Min: ${calculateMinScore(p)} - Max: ${calculateMaxScore(p)}`;
         });
 
         updateScoreButtons();
       }
 
       function fullRebuild() {
-        tbody.replaceChildren();
-        players.forEach((p, index) => {
-          const nameRow = document.createElement("tr");
-          const rollRow = document.createElement("tr");
-          const totalRow = document.createElement("tr");
+        const container = document.getElementById("teamsContainer");
+        container.replaceChildren();
 
-          const nameCell = document.createElement("td");
-          nameCell.colSpan = 8;
-          const input = document.createElement("input");
-          input.placeholder = `Player ${index + 1}`;
-          input.value = p.name;
-          input.style.width = "80px";
-          input.addEventListener("input", (event) => {
-            p.name = event.target.value;
-          });
-          nameCell.appendChild(input);
-          nameRow.appendChild(nameCell);
+        teams.forEach((team, tIdx) => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "team-wrapper";
 
-          const note = document.createElement("td");
-          note.colSpan = 13;
-          note.className = "playerNote";
-          nameRow.appendChild(note);
+          // Team Score Table
+          const table = document.createElement("table");
+          table.className = "scoreTable";
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th class="frame" colspan="2">1</th>
+                <th class="frame" colspan="2">2</th>
+                <th class="frame" colspan="2">3</th>
+                <th class="frame" colspan="2">4</th>
+                <th class="frame" colspan="2">5</th>
+                <th class="frame" colspan="2">6</th>
+                <th class="frame" colspan="2">7</th>
+                <th class="frame" colspan="2">8</th>
+                <th class="frame" colspan="2">9</th>
+                <th class="frame" colspan="3">10</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          `;
 
-          for (let r = 0; r < ROLLS; r++) {
-            const cell = document.createElement("td");
-            cell.className = "roll";
-            rollRow.appendChild(cell);
-          }
+          const tbody = table.querySelector("tbody");
+          team.tbody = tbody;
 
-          for (let f = 0; f < FRAMES; f++) {
-            const cell = document.createElement("td");
-            cell.colSpan = f === 9 ? 3 : 2;
-            cell.className = "frameTotal";
-            totalRow.appendChild(cell);
-          }
+          team.players.forEach((p, index) => {
+            const nameRow = document.createElement("tr");
+            const rollRow = document.createElement("tr");
+            const totalRow = document.createElement("tr");
 
-          [nameRow, rollRow, totalRow].forEach((row) => {
-            row.addEventListener("click", (event) => {
-              if (event.target !== input) selectPlayer(index);
+            const nameCell = document.createElement("td");
+            nameCell.colSpan = 8;
+            const input = document.createElement("input");
+            input.className = "input-playername";
+            input.placeholder = `Bowler ${index + 1}`;
+            input.value = p.name;
+            input.addEventListener("input", (event) => {
+              p.name = event.target.value;
             });
-            tbody.appendChild(row);
+            nameCell.appendChild(input);
+            nameRow.appendChild(nameCell);
+
+            const note = document.createElement("td");
+            note.colSpan = 13;
+            note.className = "playerNote";
+            nameRow.appendChild(note);
+
+            for (let r = 0; r < ROLLS; r++) {
+              const cell = document.createElement("td");
+              cell.className = "roll";
+              rollRow.appendChild(cell);
+            }
+
+            for (let f = 0; f < FRAMES; f++) {
+              const cell = document.createElement("td");
+              cell.colSpan = f === 9 ? 3 : 2;
+              cell.className = "frameTotal";
+              totalRow.appendChild(cell);
+            }
+
+            [nameRow, rollRow, totalRow].forEach((row) => {
+              row.addEventListener("click", (event) => {
+                if (event.target !== input) selectPlayer(tIdx, index);
+              });
+              tbody.appendChild(row);
+            });
           });
+
+          wrapper.appendChild(table);
+
+          // Append Keypad for this Team
+          const keypadContainer = document.createElement("div");
+          keypadContainer.innerHTML = buildKeypadHTML(tIdx);
+          wrapper.appendChild(keypadContainer);
+
+          container.appendChild(wrapper);
         });
 
         render();
       }
 
-      const requested = parseInt(
-        new URLSearchParams(window.location.search).get("bowlers"),
-        10,
-      );
-      const count = Number.isFinite(requested) && requested > 0 ? requested : 1;
-      for (let i = 0; i < count; i++) players.push(newPlayer());
-      selectedPlayer = 0;
-      fullRebuild();
+      function loadHeaderViaJSONP() {
+        toggleFunctionButtons();
+        const scriptId = "google-sheet-jsonp-script";
+        const existingScript = document.getElementById(scriptId);
+        if (existingScript) existingScript.remove();
+
+        window.googleSheetCallback = function (data) {
+          try {
+            const firstRow = data.table.rows[7];
+            const headerText =
+              firstRow && firstRow.c[0] && firstRow.c[1] && firstRow.c[2]
+                ? `${firstRow.c[0].v}: BORO: ${firstRow.c[1].v} - VS: ${firstRow.c[2].v}`
+                : "";
+            const headerInput = document.querySelector("#TopMessage");
+            if (headerInput && headerText) headerInput.value = headerText;
+          } catch (err) {
+            console.error("Error parsing Google Sheet data:", err);
+          } finally {
+            const currentScript = document.getElementById(scriptId);
+            if (currentScript) currentScript.remove();
+          }
+        };
+
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.src = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=responseHandler:googleSheetCallback&_t=${Date.now()}`;
+        script.onerror = function () {
+          console.error("Failed to load data from Google Sheets.");
+          script.remove();
+        };
+        document.body.appendChild(script);
+      }
+
+      window.addEventListener("DOMContentLoaded", initApp);
     </script>
   </body>
 </html>

@@ -96,7 +96,7 @@ th.frame {
 
 tr {
   background-color: transparent;
-  transition: background-color 1.0s ease-in-out;
+  transition: background-color 1s ease-in-out;
 }
 
 tr.selected {
@@ -228,4 +228,161 @@ button.scoreButton:disabled {
 
 td.roll.anim-impact {
   animation: cellImpact 0.35s ease-out;
+}
+
+/* Match Scores Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop.active {
+  display: flex;
+}
+
+.modal-content {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  padding: 16px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+  font-family: inherit;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: #fff;
+}
+
+.team-score-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.team-score-header {
+  font-size: 13px;
+  font-weight: bold;
+  color: #38bdf8;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.team-score-current {
+  color: #f59e0b;
+}
+
+.score-field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.score-field-row label {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.score-field-row input {
+  width: 85px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #475569;
+  background: #1e293b;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  text-align: right;
+}
+
+.modal-btn {
+  cursor: pointer;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  transition: background 0.15s ease;
+}
+
+.modal-btn:hover {
+  background: #1d4ed8;
+}
+
+.modal-btn.secondary {
+  background: #475569;
+}
+
+.modal-btn.secondary:hover {
+  background: #334155;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  border-top: 1px solid #334155;
+  padding-top: 10px;
+}
+
+/* Editable Team Title in Modal */
+.input-team-title {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  color: #38bdf8;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed #475569;
+  padding: 2px 4px;
+  width: 140px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.input-team-title:focus {
+  border-bottom-color: #38bdf8;
+  background-color: #1e293b;
+}
+
+.input-team-title::placeholder {
+  color: #64748b;
+  font-weight: normal;
 }

@@ -14,12 +14,8 @@
       <button class="functionButton" onclick="clearScores()">
         Clear All Scores
       </button>
-      <button
-        class="functionButton"
-        id="btnLoadScore"
-        onclick="loadHeaderViaJSONP()"
-      >
-        Load Match Score
+      <button class="functionButton" onclick="openMatchScoreModal()">
+        Match Scores
       </button>
       <button class="functionButton" onclick="addTeam()">+ Add Team</button>
       <button class="functionButton" onclick="promptRemoveTeam()">
@@ -33,21 +29,91 @@
       </button>
     </div>
 
-    <textarea rows="2" class="textarea-message" id="BottomMessage"></textarea>
+    <textarea rows="2" class="textarea-message" id="TopMessage"></textarea>
 
     <!-- Dynamic Teams Master Container -->
     <div id="teamsContainer"></div>
 
+    <!-- Match Scores Modal (Custom Team Names) -->
+    <div id="matchScoreModal" class="modal-backdrop">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span>Match Score Entry</span>
+          <button class="modal-close" onclick="closeMatchScoreModal()">
+            &times;
+          </button>
+        </div>
+
+        <!-- Home Team Card -->
+        <div class="team-score-card">
+          <div class="team-score-header">
+            <input
+              type="text"
+              id="nameHomeTeam"
+              class="input-team-title"
+              placeholder="Home Team Name"
+            />
+            <span class="team-score-current" id="lblHomeCurrent">Score: 0</span>
+          </div>
+          <div class="score-field-row">
+            <label>Direct Entry (Set):</label>
+            <input type="number" id="setHomeScore" placeholder="0" />
+          </div>
+          <div class="score-field-row">
+            <label>Add (+ Pins):</label>
+            <input type="number" id="addHomeScore" placeholder="+0" />
+          </div>
+        </div>
+
+        <!-- Guest Team Card -->
+        <div class="team-score-card">
+          <div class="team-score-header">
+            <input
+              type="text"
+              id="nameGuestTeam"
+              class="input-team-title"
+              placeholder="Guest Team Name"
+            />
+            <span class="team-score-current" id="lblGuestCurrent"
+              >Score: 0</span
+            >
+          </div>
+          <div class="score-field-row">
+            <label>Direct Entry (Set):</label>
+            <input type="number" id="setGuestScore" placeholder="0" />
+          </div>
+          <div class="score-field-row">
+            <label>Add (+ Pins):</label>
+            <input type="number" id="addGuestScore" placeholder="+0" />
+          </div>
+        </div>
+
+        <input
+          type="text"
+          id="note"
+          class="input-team-title"
+          placeholder="Note"
+        />
+
+        <div class="modal-footer">
+          <button class="modal-btn secondary" onclick="closeMatchScoreModal()">
+            Cancel
+          </button>
+          <button class="modal-btn" onclick="saveMatchScores()">
+            Apply & Update
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       const ROLLS = 21;
       const FRAMES = 10;
-      let spreadSheetId = "";
 
       let teams = [];
 
       function initApp() {
         const urlParams = new URLSearchParams(window.location.search);
-        spreadSheetId = urlParams.get("spreadsheetid");
 
         const teamCountParam = parseInt(urlParams.get("teams"), 10);
         const totalTeams =
@@ -104,12 +170,6 @@
 
       function toggleFunctionButtons() {
         document.querySelectorAll(".functionButton").forEach((button) => {
-          // Skip displaying the Load Match Score button if spreadsheetid is empty
-          if (button.id === "btnLoadScore" && !spreadSheetId) {
-            button.style.display = "none";
-            return;
-          }
-
           button.style.display =
             button.style.display === "block" ? "none" : "block";
         });
@@ -829,35 +889,94 @@
         render();
       }
 
-      function loadHeaderViaJSONP() {
+      let matchScores = {
+        homeName: "Home",
+        homeScore: 0,
+        guestName: "Guest",
+        guestScore: 0,
+        note: "",
+      };
+
+      function updateTopMessageDisplay() {
+        const messageBox = document.querySelector("#TopMessage");
+        if (!messageBox) return;
+
+        const hName = matchScores.homeName.trim() || "Home";
+        const gName = matchScores.guestName.trim() || "Guest";
+
+        messageBox.value = `${matchScores.note}\n${hName}: ${matchScores.homeScore} - ${gName}: ${matchScores.guestScore} (${matchScores.homeScore - matchScores.guestScore})`;
+      }
+
+      function openMatchScoreModal() {
         toggleFunctionButtons();
-        const scriptId = "google-sheet-jsonp-script";
-        const existingScript = document.getElementById(scriptId);
-        if (existingScript) existingScript.remove();
 
-        window.googleSheetCallback = function (data) {
-          try {
-            console.log("Spreadsheet Data Received", data);
-            const dataRow = data.table.cols[0];
-            const headerText = dataRow ? `${dataRow.label}` : "";
-            const headerInput = document.querySelector("#BottomMessage");
-            if (headerInput && headerText) headerInput.value = headerText;
-          } catch (err) {
-            console.error("Error parsing Google Sheet data:", err);
-          } finally {
-            const currentScript = document.getElementById(scriptId);
-            if (currentScript) currentScript.remove();
-          }
-        };
+        const nameHome = document.getElementById("nameHomeTeam");
+        const nameGuest = document.getElementById("nameGuestTeam");
+        const lblHome = document.getElementById("lblHomeCurrent");
+        const lblGuest = document.getElementById("lblGuestCurrent");
+        const note = document.getElementById("note");
 
-        const script = document.createElement("script");
-        script.id = scriptId;
-        script.src = `https://docs.google.com/spreadsheets/d/${spreadSheetId}/gviz/tq?tqx=responseHandler:googleSheetCallback&_t=${Date.now()}`;
-        script.onerror = function () {
-          console.error("Failed to load data from Google Sheets.");
-          script.remove();
-        };
-        document.body.appendChild(script);
+        if (nameHome) nameHome.value = matchScores.homeName;
+        if (nameGuest) nameGuest.value = matchScores.guestName;
+        if (lblHome) lblHome.textContent = `Score: ${matchScores.homeScore}`;
+        if (lblGuest) lblGuest.textContent = `Score: ${matchScores.guestScore}`;
+
+        // Clear numeric inputs on each open
+        const setHome = document.getElementById("setHomeScore");
+        const addHome = document.getElementById("addHomeScore");
+        const setGuest = document.getElementById("setGuestScore");
+        const addGuest = document.getElementById("addGuestScore");
+
+        if (setHome) setHome.value = "";
+        if (addHome) addHome.value = "";
+        if (setGuest) setGuest.value = "";
+        if (addGuest) addGuest.value = "";
+
+        document.getElementById("matchScoreModal").classList.add("active");
+      }
+
+      function closeMatchScoreModal() {
+        document.getElementById("matchScoreModal").classList.remove("active");
+      }
+
+      function saveMatchScores() {
+        const nameHome = document.getElementById("nameHomeTeam");
+        const nameGuest = document.getElementById("nameGuestTeam");
+        const setHome = document.getElementById("setHomeScore");
+        const addHome = document.getElementById("addHomeScore");
+        const setGuest = document.getElementById("setGuestScore");
+        const addGuest = document.getElementById("addGuestScore");
+        const note = document.getElementById("note");
+
+        // Save Team Names
+        if (nameHome) {
+          matchScores.homeName = nameHome.value.trim() || "Home";
+        }
+        if (nameGuest) {
+          matchScores.guestName = nameGuest.value.trim() || "Guest";
+        }
+        if (note) {
+          matchScores.note = note.value.trim() || "";
+        }
+
+        // Update Home Score
+        if (setHome && setHome.value.trim() !== "") {
+          matchScores.homeScore = parseInt(setHome.value.trim(), 10) || 0;
+        }
+        if (addHome && addHome.value.trim() !== "") {
+          matchScores.homeScore += parseInt(addHome.value.trim(), 10) || 0;
+        }
+
+        // Update Guest Score
+        if (setGuest && setGuest.value.trim() !== "") {
+          matchScores.guestScore = parseInt(setGuest.value.trim(), 10) || 0;
+        }
+        if (addGuest && addGuest.value.trim() !== "") {
+          matchScores.guestScore += parseInt(addGuest.value.trim(), 10) || 0;
+        }
+
+        updateTopMessageDisplay();
+        closeMatchScoreModal();
       }
 
       window.addEventListener("DOMContentLoaded", initApp);

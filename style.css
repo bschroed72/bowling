@@ -240,8 +240,8 @@ td.roll.anim-impact {
   background: rgba(0, 0, 0, 0.75);
   z-index: 2000;
   display: none;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .modal-backdrop.active {
@@ -254,8 +254,9 @@ td.roll.anim-impact {
   border: 1px solid #475569;
   border-radius: 8px;
   padding: 16px;
-  width: 320px;
+  width: 380px;
   max-width: 90vw;
+  margin: 45px 0 0 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
   font-family: inherit;
 }

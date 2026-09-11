@@ -838,6 +838,13 @@
             input.addEventListener("input", (event) => {
               p.name = event.target.value;
             });
+            // Add keydown listener to hide the keyboard when "Enter" / "Go" is pressed
+            input.addEventListener("keydown", function(event) {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                this.blur(); // Removes focus and hides the virtual keyboard
+              }
+            });            
             nameCell.appendChild(input);
             nameRow.appendChild(nameCell);
 
@@ -936,15 +943,26 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td style="padding: 4px;">
-            <input class="score-row-input-0" value="${val0}" placeholder="0" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 13px; font-weight: bold; text-align: right; box-sizing: border-box;" />
+            <input type="number" inputmode="numeric" pattern="[0-9]*" class="score-row-input-0" value="${val0}" placeholder="0" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 13px; font-weight: bold; text-align: right; box-sizing: border-box;" />
           </td>
           <td style="padding: 4px;">
-            <input class="score-row-input-1" value="${val1}" placeholder="0" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 13px; font-weight: bold; text-align: right; box-sizing: border-box;" />
+            <input type="number" inputmode="numeric" pattern="[0-9]*" class="score-row-input-1" value="${val1}" placeholder="0" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 13px; font-weight: bold; text-align: right; box-sizing: border-box;" />
           </td>
           <td style="padding: 4px; text-align: center;">
             <button type="button" class="modal-close" onclick="this.closest('tr').remove()" style="font-size: 18px; color: #94a3b8; background: none; border: none; cursor: pointer;">&times;</button>
           </td>
         `;
+
+        // Add event listener to hide the keyboard when "Go" (Enter) is pressed
+        tr.querySelectorAll("input[type='number']").forEach(input => {
+          input.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              this.blur(); // Removes focus, hiding the virtual keyboard
+            }
+          });
+        });
+
         container.appendChild(tr);
       }
 

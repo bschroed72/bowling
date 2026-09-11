@@ -113,6 +113,12 @@ tr.selected {
   outline: none;
 }
 
+/* Distinct visual style when actively editing a bowler's name */
+.input-playername:focus {
+  border-color: #2563eb; /* Bright blue accent border */
+  box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+}
+
 td.playerNote {
   text-align: right;
   padding-right: 4px;
@@ -386,4 +392,15 @@ td.roll.anim-impact {
 .input-team-title::placeholder {
   color: #64748b;
   font-weight: normal;
+}
+
+/* Hide spin buttons for number inputs across browsers */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }

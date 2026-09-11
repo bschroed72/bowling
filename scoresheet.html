@@ -34,9 +34,9 @@
     <!-- Dynamic Teams Master Container -->
     <div id="teamsContainer"></div>
 
-    <!-- Match Scores Modal (Custom Team Names) -->
+<!-- Match Scores Modal (Dynamic Table Entry) -->
     <div id="matchScoreModal" class="modal-backdrop">
-      <div class="modal-content">
+      <div class="modal-content" style="width: 250px;">
         <div class="modal-header">
           <span>Match Score Entry</span>
           <button class="modal-close" onclick="closeMatchScoreModal()">
@@ -44,55 +44,46 @@
           </button>
         </div>
 
-        <!-- Home Team Card -->
-        <div class="team-score-card">
-          <div class="team-score-header">
-            <input
-              type="text"
-              id="nameHomeTeam"
-              class="input-team-title"
-              placeholder="Home Team Name"
-            />
-            <span class="team-score-current" id="lblHomeCurrent">Score: 0</span>
-          </div>
-          <div class="score-field-row">
-            <label>Direct Entry (Set):</label>
-            <input type="number" id="setHomeScore" placeholder="0" />
-          </div>
-          <div class="score-field-row">
-            <label>Add (+ Pins):</label>
-            <input type="number" id="addHomeScore" placeholder="+0" />
-          </div>
-        </div>
+        <!-- Dynamic Table with Editable Team Headers -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px;">
+          <thead>
+            <tr>
+              <th style="padding: 4px; text-align: left;">
+                <input
+                  type="text"
+                  id="nameTeam0"
+                  class="input-team-title"
+                  placeholder="Team 1 Name"
+                  style="width: 100%; box-sizing: border-box;"
+                />
+              </th>
+              <th style="padding: 4px; text-align: left;">
+                <input
+                  type="text"
+                  id="nameTeam1"
+                  class="input-team-title"
+                  placeholder="Team 2 Name"
+                  style="width: 100%; box-sizing: border-box;"
+                />
+              </th>
+              <th style="width: 30px;"></th>
+            </tr>
+          </thead>
+          <tbody id="matchScoreRowsContainer">
+            <!-- Dynamic rows inserted here -->
+          </tbody>
+        </table>
 
-        <!-- Guest Team Card -->
-        <div class="team-score-card">
-          <div class="team-score-header">
-            <input
-              type="text"
-              id="nameGuestTeam"
-              class="input-team-title"
-              placeholder="Guest Team Name"
-            />
-            <span class="team-score-current" id="lblGuestCurrent"
-              >Score: 0</span
-            >
-          </div>
-          <div class="score-field-row">
-            <label>Direct Entry (Set):</label>
-            <input type="number" id="setGuestScore" placeholder="0" />
-          </div>
-          <div class="score-field-row">
-            <label>Add (+ Pins):</label>
-            <input type="number" id="addGuestScore" placeholder="+0" />
-          </div>
-        </div>
+        <button class="modal-btn secondary" onclick="addMatchScoreRow()" style="width: 100%; margin-bottom: 12px;">
+          + Add Row
+        </button>
 
         <input
           type="text"
           id="note"
           class="input-team-title"
           placeholder="Note"
+          style="width: 100%; box-sizing: border-box; margin-bottom: 12px;"
         />
 
         <div class="modal-footer">
@@ -890,10 +881,8 @@
       }
 
       let matchScores = {
-        homeName: "Home",
-        homeScore: 0,
-        guestName: "Guest",
-        guestScore: 0,
+        teamNames: ["Boro", "Guest"],
+        rows: [["", ""]], // Stores arrays of scores per row: [team0Score, team1Score]
         note: "",
       };
 
@@ -901,38 +890,62 @@
         const messageBox = document.querySelector("#TopMessage");
         if (!messageBox) return;
 
-        const hName = matchScores.homeName.trim() || "Home";
-        const gName = matchScores.guestName.trim() || "Guest";
+        const t0Name = matchScores.teamNames[0].trim() || "Team 1";
+        const t1Name = matchScores.teamNames[1].trim();
 
-        messageBox.value = `${matchScores.note}\n${hName}: ${matchScores.homeScore} - ${gName}: ${matchScores.guestScore} (${matchScores.homeScore - matchScores.guestScore})`;
+        // Sum up scores across all dynamic rows
+        let t0Total = 0;
+        let t1Total = 0;
+        matchScores.rows.forEach(r => {
+          t0Total += Number(r[0]) || 0;
+          t1Total += Number(r[1]) || 0;
+        });
+
+        if (!t1Name) {
+          messageBox.value = `${matchScores.note}\n${t0Name}: ${t0Total}`;
+        } else {
+          messageBox.value = `${matchScores.note}\n${t0Name}: ${t0Total} - ${t1Name}: ${t1Total} (${t0Total - t1Total})`;
+        }
       }
 
       function openMatchScoreModal() {
         toggleFunctionButtons();
 
-        const nameHome = document.getElementById("nameHomeTeam");
-        const nameGuest = document.getElementById("nameGuestTeam");
-        const lblHome = document.getElementById("lblHomeCurrent");
-        const lblGuest = document.getElementById("lblGuestCurrent");
-        const note = document.getElementById("note");
+        document.getElementById("nameTeam0").value = matchScores.teamNames[0];
+        document.getElementById("nameTeam1").value = matchScores.teamNames[1];
+        document.getElementById("note").value = matchScores.note;
 
-        if (nameHome) nameHome.value = matchScores.homeName;
-        if (nameGuest) nameGuest.value = matchScores.guestName;
-        if (lblHome) lblHome.textContent = `Score: ${matchScores.homeScore}`;
-        if (lblGuest) lblGuest.textContent = `Score: ${matchScores.guestScore}`;
+        const container = document.getElementById("matchScoreRowsContainer");
+        container.innerHTML = "";
 
-        // Clear numeric inputs on each open
-        const setHome = document.getElementById("setHomeScore");
-        const addHome = document.getElementById("addHomeScore");
-        const setGuest = document.getElementById("setGuestScore");
-        const addGuest = document.getElementById("addGuestScore");
-
-        if (setHome) setHome.value = "";
-        if (addHome) addHome.value = "";
-        if (setGuest) setGuest.value = "";
-        if (addGuest) addGuest.value = "";
+        // Populate rows or default to one row if empty
+        const rowsToRender = matchScores.rows.length > 0 ? matchScores.rows : [[0, 0]];
+        rowsToRender.forEach(r => {
+          appendMatchScoreRowDOM(r[0], r[1]);
+        });
 
         document.getElementById("matchScoreModal").classList.add("active");
+      }
+
+      function addMatchScoreRow(val0 = "", val1 = "") {
+        appendMatchScoreRowDOM(val0, val1);
+      }
+
+      function appendMatchScoreRowDOM(val0, val1) {
+        const container = document.getElementById("matchScoreRowsContainer");
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="padding: 4px;">
+            <input class="score-row-input-0" value="${val0}" placeholder="0" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 13px; font-weight: bold; text-align: right; box-sizing: border-box;" />
+          </td>
+          <td style="padding: 4px;">
+            <input class="score-row-input-1" value="${val1}" placeholder="0" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 13px; font-weight: bold; text-align: right; box-sizing: border-box;" />
+          </td>
+          <td style="padding: 4px; text-align: center;">
+            <button type="button" class="modal-close" onclick="this.closest('tr').remove()" style="font-size: 18px; color: #94a3b8; background: none; border: none; cursor: pointer;">&times;</button>
+          </td>
+        `;
+        container.appendChild(tr);
       }
 
       function closeMatchScoreModal() {
@@ -940,39 +953,28 @@
       }
 
       function saveMatchScores() {
-        const nameHome = document.getElementById("nameHomeTeam");
-        const nameGuest = document.getElementById("nameGuestTeam");
-        const setHome = document.getElementById("setHomeScore");
-        const addHome = document.getElementById("addHomeScore");
-        const setGuest = document.getElementById("setGuestScore");
-        const addGuest = document.getElementById("addGuestScore");
-        const note = document.getElementById("note");
+        const name0 = document.getElementById("nameTeam0").value.trim() || "Team 1";
+        const name1 = document.getElementById("nameTeam1").value.trim();
+        const noteInput = document.getElementById("note").value.trim();
 
-        // Save Team Names
-        if (nameHome) {
-          matchScores.homeName = nameHome.value.trim() || "Home";
-        }
-        if (nameGuest) {
-          matchScores.guestName = nameGuest.value.trim() || "Guest";
-        }
-        if (note) {
-          matchScores.note = note.value.trim() || "";
-        }
+        matchScores.teamNames = [name0, name1];
+        matchScores.note = noteInput;
 
-        // Update Home Score
-        if (setHome && setHome.value.trim() !== "") {
-          matchScores.homeScore = parseInt(setHome.value.trim(), 10) || 0;
-        }
-        if (addHome && addHome.value.trim() !== "") {
-          matchScores.homeScore += parseInt(addHome.value.trim(), 10) || 0;
-        }
+        // Gather scores from all active rows in the table
+        matchScores.rows = [];
+        const container = document.getElementById("matchScoreRowsContainer");
+        const trs = container.querySelectorAll("tr");
 
-        // Update Guest Score
-        if (setGuest && setGuest.value.trim() !== "") {
-          matchScores.guestScore = parseInt(setGuest.value.trim(), 10) || 0;
-        }
-        if (addGuest && addGuest.value.trim() !== "") {
-          matchScores.guestScore += parseInt(addGuest.value.trim(), 10) || 0;
+        trs.forEach(tr => {
+          const input0 = tr.querySelector(".score-row-input-0");
+          const input1 = tr.querySelector(".score-row-input-1");
+          const val0 = parseInt(input0.value, 10) || 0;
+          const val1 = parseInt(input1.value, 10) || 0;
+          matchScores.rows.push([val0, val1]);
+        });
+
+        if (matchScores.rows.length === 0) {
+          matchScores.rows.push(["", ""]);
         }
 
         updateTopMessageDisplay();
